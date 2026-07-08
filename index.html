@@ -427,6 +427,41 @@
                 display: none !important;
             }
         }
+
+        .mobile-nav-indicator {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 0;
+            height: 0;
+            border-radius: 9999px;
+            opacity: 0;
+            background: linear-gradient(180deg, rgba(184, 195, 255, 0.18), rgba(46, 91, 255, 0.08));
+            border: 1px solid rgba(184, 195, 255, 0.16);
+            box-shadow: 0 10px 28px rgba(46, 91, 255, 0.18);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            transition: transform 260ms cubic-bezier(0.16, 1, 0.3, 1), width 260ms cubic-bezier(0.16, 1, 0.3, 1), height 260ms cubic-bezier(0.16, 1, 0.3, 1), opacity 160ms ease;
+            pointer-events: none;
+        }
+
+        .mobile-nav-item {
+            transition: transform 240ms cubic-bezier(0.16, 1, 0.3, 1), color 200ms ease, opacity 200ms ease;
+        }
+
+        .mobile-nav-item .material-symbols-outlined {
+            display: block;
+            transform-origin: center;
+            transition: transform 240ms cubic-bezier(0.16, 1, 0.3, 1), color 200ms ease, opacity 200ms ease;
+        }
+
+        .mobile-nav-item.is-active {
+            transform: translateY(-1px);
+        }
+
+        .mobile-nav-item.is-active .material-symbols-outlined {
+            transform: scale(1.12);
+        }
     </style>
 </head>
 <body class="antialiased min-h-screen flex flex-col font-body-md selection:bg-primary-container selection:text-white" data-theme="cosmic" data-effects="on">
@@ -486,7 +521,7 @@
     </header>
 
     <!-- ========== MAIN CANVAS ========== -->
-    <main class="flex-1 relative z-10 w-full max-w-7xl mx-auto px-container-padding pt-20 md:pt-8 pb-36 md:pb-36" id="main-canvas">
+    <main class="flex-1 relative z-10 w-full max-w-8xl mx-auto px-container-padding pt-20 md:pt-8 pb-36 md:pb-36" id="main-canvas">
 
         <!-- TRANSLATE SECTION -->
         <section class="app-section is-active" id="section-translate" aria-labelledby="section-translate-title">
@@ -541,7 +576,7 @@
                     <div class="absolute -top-24 -right-24 w-48 h-48 bg-primary/5 rounded-full blur-[50px] pointer-events-none"></div>
                 </article>
 
-                <article class="bento-card rounded-[28px] p-6 flex flex-col gap-4 flex-1 min-h-[240px] relative overflow-hidden border-primary/20 motion-safe:animate-slide-up-fade" style="animation-delay: 250ms;">
+                <article class="bento-card rounded-[28px] p-6 flex flex-col gap-4 flex-1 min-h-[220px] relative overflow-hidden border-primary/20 motion-safe:animate-slide-up-fade" style="animation-delay: 250ms;">
                     <div class="absolute top-0 left-0 h-[2px] bg-primary-container w-0 transition-all duration-[2000ms] ease-in-out z-20 md:hidden mobile-progress" id="progress-line-mobile"></div>
                     <div class="flex items-center justify-between z-10">
                         <span class="font-label-md text-label-md text-primary tracking-wider uppercase" data-i18n="label.synthesizedOutput">Synthesized Output</span>
@@ -552,7 +587,7 @@
                     <div class="flex-1 flex flex-col justify-center z-10 overflow-y-auto" id="output-content-mobile">
                         <div class="text-center py-6">
                             <span class="material-symbols-outlined text-[40px] text-white/15 mb-3 block">translate</span>
-                            <p class="font-body-md text-outline text-sm" data-i18n="status.awaiting">Awaiting input for synthesis...</p>
+                            <p class="font-headline-md text-headline-md text-outline" data-i18n="status.awaiting">Awaiting input for synthesis...</p>
                         </div>
                     </div>
                     <div class="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-primary/10 to-transparent blur-[30px] opacity-50 pointer-events-none"></div>
@@ -732,6 +767,10 @@
                             <span class="material-symbols-outlined">photo_camera</span>
                             <span>Take Photo</span>
                         </button>
+                        <button class="flex-1 py-3 px-4 rounded-xl border border-outline-variant/30 text-on-surface font-label-md hover:bg-surface-container-high transition-colors flex items-center justify-center gap-2 md:hidden" id="camera-capture-btn-mobile" type="button">
+                            <span class="material-symbols-outlined">photo_camera</span>
+                            <span>Take Photo</span>
+                        </button>
                     </div>
 
                     <!-- Image preview -->
@@ -764,10 +803,22 @@
                     </div>
                 </div>
 
-                <!-- Analyze Button -->
-                <button class="w-full py-4 px-6 rounded-xl bg-primary-container text-white font-label-md text-label-md font-bold flex items-center justify-center gap-2 pulse-glow hover:bg-[#124af0] transition-colors disabled:opacity-60" id="traveler-analyze-btn" type="button" disabled>
-                    <span class="material-symbols-outlined text-[20px]">auto_awesome</span>
-                    <span>Analyze Image</span>
+                <!-- Direct Translation -->
+                <div id="traveler-translation-card" class="hidden bento-card p-6 space-y-4">
+                    <div class="flex items-start justify-between gap-4">
+                        <div>
+                            <h3 class="font-headline-md text-headline-md text-on-surface">Direct Translation</h3>
+                            <p class="font-body-md text-outline text-sm mt-1">A quick read of the visible text in the selected language.</p>
+                        </div>
+                        <span class="material-symbols-outlined text-[20px] text-primary">translate</span>
+                    </div>
+                    <p class="font-headline-md text-headline-md text-on-surface leading-relaxed" id="traveler-translation"></p>
+                </div>
+
+                <!-- Discover Context Button -->
+                <button class="hidden w-full py-4 px-6 rounded-xl bg-primary-container text-white font-label-md text-label-md font-bold flex items-center justify-center gap-2 pulse-glow hover:bg-[#124af0] transition-colors disabled:opacity-60" id="discover-context-btn" type="button" disabled>
+                    <span class="material-symbols-outlined text-[20px]">travel_explore</span>
+                    <span>Discover Context</span>
                 </button>
 
                 <!-- Results -->
@@ -854,37 +905,36 @@
         </div>
         <!-- Action bar -->
         <nav class="h-action-bar-height action-bar flex justify-center items-center px-8 relative rounded-t-2xl">
-            <div class="flex items-center justify-between w-full max-w-md px-2">
-                <button class="text-outline hover:text-white/90 active:scale-95 transition-all duration-300 p-2 rounded-full" id="mic-btn-mobile" type="button" aria-label="Microphone">
+            <div class="grid w-full max-w-md grid-cols-[1fr_auto_1fr] items-center px-2">
+                <button class="relative z-10 justify-self-start text-outline hover:text-white/90 active:scale-95 transition-all duration-300 p-2 rounded-full" id="mic-btn-mobile" type="button" aria-label="Microphone">
                     <span class="material-symbols-outlined">mic</span>
                 </button>
 
-                <button class="relative -top-6 bg-primary-container text-on-primary-container rounded-full w-20 h-20 flex items-center justify-center shadow-[0_0_30px_rgba(46,91,255,0.3)] hover:scale-105 active:scale-95 transition-all duration-300 border-2 border-background motion-safe:animate-pulse-breathe" id="synthesize-btn-mobile" type="button">
+                <button class="relative z-10 justify-self-center -top-6 bg-primary-container text-on-primary-container rounded-full w-20 h-20 flex items-center justify-center shadow-[0_0_30px_rgba(46,91,255,0.3)] hover:scale-105 active:scale-95 transition-all duration-300 border-2 border-background motion-safe:animate-pulse-breathe" id="synthesize-btn-mobile" type="button">
                     <span class="material-symbols-outlined text-3xl text-white synth-btn-inner" style="font-variation-settings: 'FILL' 1;">graphic_eq</span>
                 </button>
 
-                <button class="text-outline hover:text-white/90 active:scale-95 transition-all duration-300 p-2 rounded-full" id="camera-btn-mobile" type="button" aria-label="Camera">
-                    <span class="material-symbols-outlined">photo_camera</span>
-                </button>
+                <div aria-hidden="true" class="justify-self-end h-10 w-10"></div>
             </div>
         </nav>
     </div>
 
     <!-- ========== MOBILE BOTTOM NAV ========== -->
-    <nav class="md:hidden fixed left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-sm z-30 flex justify-around items-center h-14 px-4 rounded-full border border-white/10 bg-surface-container/90 backdrop-blur-3xl bottom-4 transition-all duration-300" id="mobile-bottom-nav">
-        <button class="mobile-nav-item flex flex-col items-center gap-0.5 text-primary p-2 transition-all" data-section="translate" type="button">
+    <nav class="md:hidden fixed left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-sm z-30 flex justify-around items-center h-14 px-4 rounded-full border border-white/10 bg-surface-container/90 backdrop-blur-3xl bottom-4 transition-all duration-300 relative overflow-hidden" id="mobile-bottom-nav">
+        <div aria-hidden="true" class="mobile-nav-indicator" id="mobile-nav-indicator"></div>
+        <button class="mobile-nav-item relative z-10 flex flex-col items-center gap-0.5 text-primary p-2 transition-all" data-section="translate" type="button">
             <span class="material-symbols-outlined text-[22px]" style="font-variation-settings: 'FILL' 1;">translate</span>
             <span class="text-[10px] font-medium tracking-wide" data-i18n="nav.translate">Translate</span>
         </button>
-        <button class="mobile-nav-item flex flex-col items-center gap-0.5 text-outline p-2 transition-all" data-section="history" type="button">
+        <button class="mobile-nav-item relative z-10 flex flex-col items-center gap-0.5 text-outline p-2 transition-all" data-section="history" type="button">
             <span class="material-symbols-outlined text-[22px]">auto_stories</span>
             <span class="text-[10px] font-medium tracking-wide" data-i18n="nav.history">History</span>
         </button>
-        <button class="mobile-nav-item flex flex-col items-center gap-0.5 text-outline p-2 transition-all" data-section="traveler" type="button">
+        <button class="mobile-nav-item relative z-10 flex flex-col items-center gap-0.5 text-outline p-2 transition-all" data-section="traveler" type="button">
             <span class="material-symbols-outlined text-[22px]">photo_camera</span>
             <span class="text-[10px] font-medium tracking-wide">Traveler</span>
         </button>
-        <button class="mobile-nav-item flex flex-col items-center gap-0.5 text-outline p-2 transition-all" data-section="settings" type="button">
+        <button class="mobile-nav-item relative z-10 flex flex-col items-center gap-0.5 text-outline p-2 transition-all" data-section="settings" type="button">
             <span class="material-symbols-outlined text-[22px]">settings</span>
             <span class="text-[10px] font-medium tracking-wide" data-i18n="nav.settings">Settings</span>
         </button>
