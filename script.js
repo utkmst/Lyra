@@ -3,9 +3,10 @@
  * FastAPI translate endpoint integration
  */
 
-const API_URL = 'https://yellow-drinks-hammer.loca.lt/translate';
-const TRAVELER_API_URL = 'https://yellow-drinks-hammer.loca.lt/traveler/analyze';
-const TRAVELER_HISTORY_URL = 'https://yellow-drinks-hammer.loca.lt/traveler/history';
+const API_URL = 'https://late-fans-bow.loca.lt/translate';
+const TRAVELER_TRANSLATION_URL = 'https://late-fans-bow.loca.lt/traveler/translation';
+const TRAVELER_ANALYZE_URL = 'https://late-fans-bow.loca.lt/traveler/analyze';
+const TRAVELER_HISTORY_URL = 'https://late-fans-bow.loca.lt/traveler/history';
 
 const LANGUAGE_SUGGESTIONS = [
   'Japanese (Business)',
@@ -53,8 +54,113 @@ const sessionHistory = [];
 let lastEnginePayload = null;
 
 /** Traveler mode state */
-let travelerCurrentImage = null;  // Base64 or Blob
+let travelerCurrentImage = null;  // Compressed Blob or fallback data URL
+let travelerCurrentImagePreviewUrl = '';
+let travelerCurrentTranslation = '';
 let travelerHistory = [];  // Cache from /traveler/history
+
+const TRAVELER_IMAGE_MAX_DIMENSION = 1024;
+const TRAVELER_IMAGE_QUALITY = 0.7;
+
+function clearTravelerPreviewUrl() {
+  if (travelerCurrentImagePreviewUrl) {
+    URL.revokeObjectURL(travelerCurrentImagePreviewUrl);
+    travelerCurrentImagePreviewUrl = '';
+  }
+}
+
+function resetTravelerFlow() {
+  travelerCurrentTranslation = '';
+
+  const translationCard = document.getElementById('traveler-translation-card');
+  const translationText = document.getElementById('traveler-translation');
+  const discoverBtn = document.getElementById('discover-context-btn');
+  const resultsDiv = document.getElementById('traveler-results');
+  const safetyBanner = document.getElementById('safety-flag-banner');
+  const ttsControls = document.getElementById('tts-controls');
+
+  if (translationCard) translationCard.classList.add('hidden');
+  if (translationText) translationText.textContent = '';
+  if (discoverBtn) {
+    discoverBtn.classList.add('hidden');
+    discoverBtn.disabled = true;
+    setTravelerButtonLabel(discoverBtn, 'Discover Context');
+  }
+  if (resultsDiv) resultsDiv.classList.add('hidden');
+  if (safetyBanner) safetyBanner.classList.add('hidden');
+  if (ttsControls) ttsControls.classList.add('hidden');
+}
+
+function setTravelerButtonLabel(button, label) {
+  if (!button) return;
+  const textSpan = button.querySelector('span:last-child');
+  if (textSpan) {
+    textSpan.textContent = label;
+  } else {
+    button.textContent = label;
+  }
+}
+
+function blobToDataUrl(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(reader.error || new Error('Failed to read image blob'));
+    reader.readAsDataURL(blob);
+  });
+}
+
+function loadImage(url) {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = () => reject(new Error('Failed to load image for compression'));
+    image.src = url;
+  });
+}
+
+async function compressTravelerImage(file) {
+  const objectUrl = URL.createObjectURL(file);
+
+  try {
+    const image = await loadImage(objectUrl);
+    const scale = Math.min(
+      1,
+      TRAVELER_IMAGE_MAX_DIMENSION / Math.max(image.width || 1, image.height || 1)
+    );
+    const width = Math.max(1, Math.round((image.width || 1) * scale));
+    const height = Math.max(1, Math.round((image.height || 1) * scale));
+
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+
+    const context = canvas.getContext('2d');
+    if (!context) {
+      throw new Error('Canvas context unavailable');
+    }
+
+    context.drawImage(image, 0, 0, width, height);
+
+    const compressedBlob = await new Promise((resolve, reject) => {
+      canvas.toBlob(
+        (blob) => {
+          if (blob) {
+            resolve(blob);
+          } else {
+            reject(new Error('Canvas compression failed'));
+          }
+        },
+        'image/jpeg',
+        TRAVELER_IMAGE_QUALITY
+      );
+    });
+
+    return compressedBlob;
+  } finally {
+    URL.revokeObjectURL(objectUrl);
+  }
+}
 
 /** App state for section + settings */
 const appState = {
@@ -382,7 +488,7 @@ function renderOutput(text, { isPlaceholder = false } = {}) {
     }
 
     output.className = isMobile
-      ? 'flex-1 flex flex-col justify-center z-10 overflow-y-auto font-display text-display text-on-surface tracking-tight leading-tight whitespace-pre-wrap'
+      ? 'flex-1 flex flex-col justify-center z-10 overflow-y-auto font-headline-md text-headline-md text-on-surface tracking-tight leading-snug whitespace-pre-wrap text-left'
       : 'flex-grow flex flex-col justify-center min-h-0 relative z-10 overflow-y-auto font-headline-lg text-headline-lg text-on-surface tracking-tight leading-tight whitespace-pre-wrap text-left';
     output.textContent = text;
   });
@@ -461,17 +567,43 @@ async function synthesize() {
   }
 }
 
-function copyOutputText() {
+async function copyOutputText() {
   const outputs = getOutputElements();
   const output = outputs.find((el) => el.textContent?.trim()) || outputs[0];
   if (!output) return;
 
   const text = output.textContent?.trim();
-  if (!text || output.querySelector('#output-awaiting') || text.includes(t('status.failed'))) return;
+  if (!text) return;
 
-  navigator.clipboard.writeText(text).catch((error) => {
+  const blockedMessages = [t('status.awaiting'), t('status.emptySource'), t('status.failed')];
+  if (blockedMessages.some((message) => text.includes(message))) return;
+
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+      return;
+    }
+
+    const fallback = document.createElement('textarea');
+    fallback.value = text;
+    fallback.setAttribute('readonly', '');
+    fallback.style.position = 'fixed';
+    fallback.style.opacity = '0';
+    fallback.style.pointerEvents = 'none';
+    fallback.style.left = '-9999px';
+    document.body.appendChild(fallback);
+    fallback.select();
+    fallback.setSelectionRange(0, fallback.value.length);
+
+    const copied = document.execCommand('copy');
+    fallback.remove();
+
+    if (!copied) {
+      throw new Error('Fallback copy failed');
+    }
+  } catch (error) {
     console.error('[Lyra] Copy failed:', error);
-  });
+  }
 }
 
 function initCopyButton() {
@@ -641,6 +773,7 @@ function setActiveSection(section) {
     const label = btn.querySelector('span:last-child');
     const icon = btn.querySelector('.material-symbols-outlined');
     const active = btnSection === section;
+    btn.classList.toggle('is-active', active);
     btn.classList.toggle('text-primary', active);
     btn.classList.toggle('text-outline', !active);
     if (label) {
@@ -675,11 +808,35 @@ function setActiveSection(section) {
     mainCanvas.classList.toggle('pb-52', isTranslate);
   }
 
+  syncMobileNavIndicator(section);
+
   if (section === 'history') {
     renderHistory();
   } else if (section === 'engine') {
     renderEngine();
   }
+}
+
+function syncMobileNavIndicator(section) {
+  const mobileNav = document.getElementById('mobile-bottom-nav');
+  const indicator = document.getElementById('mobile-nav-indicator');
+  if (!mobileNav || !indicator) return;
+
+  const activeButton = mobileNav.querySelector(`.mobile-nav-item[data-section="${section}"]`);
+  if (!(activeButton instanceof HTMLElement)) {
+    indicator.style.opacity = '0';
+    return;
+  }
+
+  const navRect = mobileNav.getBoundingClientRect();
+  const buttonRect = activeButton.getBoundingClientRect();
+  const insetX = 8;
+  const insetY = 6;
+
+  indicator.style.width = `${buttonRect.width + insetX * 2}px`;
+  indicator.style.height = `${buttonRect.height + insetY * 2}px`;
+  indicator.style.transform = `translate(${buttonRect.left - navRect.left - insetX}px, ${buttonRect.top - navRect.top - insetY}px)`;
+  indicator.style.opacity = '1';
 }
 
 function applyTheme(theme) {
@@ -876,22 +1033,152 @@ function initBackground() {
 // TRAVELER MODE HANDLERS
 // ============================================================================
 
-function handleImageSelect(file) {
+async function handleImageSelect(file) {
   if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    travelerCurrentImage = e.target.result;
+
+  resetTravelerFlow();
+
+  try {
+    const compressedBlob = await compressTravelerImage(file);
+    travelerCurrentImage = compressedBlob;
+    clearTravelerPreviewUrl();
+    travelerCurrentImagePreviewUrl = URL.createObjectURL(compressedBlob);
+
     const preview = document.getElementById('image-preview');
     const container = document.getElementById('image-preview-container');
     if (preview && container) {
-      preview.src = travelerCurrentImage;
+      preview.src = travelerCurrentImagePreviewUrl;
       container.classList.remove('hidden');
     }
-    // Enable analyze button
-    const analyzeBtn = document.getElementById('traveler-analyze-btn');
-    if (analyzeBtn) analyzeBtn.disabled = false;
-  };
-  reader.readAsDataURL(file);
+
+    await translateTravelerImage();
+  } catch (error) {
+    console.error('[Lyra Traveler] Image compression failed:', error);
+
+    travelerCurrentImage = null;
+    clearTravelerPreviewUrl();
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      travelerCurrentImage = e.target.result;
+      const preview = document.getElementById('image-preview');
+      const container = document.getElementById('image-preview-container');
+      if (preview && container) {
+        preview.src = travelerCurrentImage;
+        container.classList.remove('hidden');
+      }
+
+      translateTravelerImage();
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+async function getTravelerUploadBlob() {
+  if (!travelerCurrentImage) return null;
+
+  if (travelerCurrentImage instanceof Blob) {
+    return travelerCurrentImage;
+  }
+
+  if (typeof travelerCurrentImage === 'string' && travelerCurrentImage.startsWith('data:')) {
+    const arr = travelerCurrentImage.split(',');
+    const mimeMatch = arr[0].match(/:(.*?);/);
+    const mime = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+    const bstr = atob(arr[1]);
+    const n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    for (let i = 0; i < n; i++) {
+      u8arr[i] = bstr.charCodeAt(i);
+    }
+    return new Blob([u8arr], { type: mime });
+  }
+
+  return null;
+}
+
+function setTravelerTranslationLoading(isLoading) {
+  const translationCard = document.getElementById('traveler-translation-card');
+  const translationText = document.getElementById('traveler-translation');
+  const discoverBtn = document.getElementById('discover-context-btn');
+
+  if (translationCard) translationCard.classList.remove('hidden');
+  if (translationText) {
+    translationText.textContent = isLoading ? 'Translating...' : travelerCurrentTranslation;
+  }
+  if (discoverBtn) {
+    discoverBtn.classList.toggle('hidden', isLoading || !travelerCurrentTranslation);
+    discoverBtn.disabled = isLoading;
+    setTravelerButtonLabel(discoverBtn, 'Discover Context');
+  }
+}
+
+async function translateTravelerImage() {
+  const blob = await getTravelerUploadBlob();
+  if (!blob) return;
+
+  const language = document.getElementById('traveler-language').value || 'English';
+  const mode = document.getElementById('traveler-mode').value || 'object';
+
+  setTravelerTranslationLoading(true);
+
+  try {
+    const formData = new FormData();
+    formData.append('image', blob, 'photo.jpg');
+    formData.append('target_language', language);
+    formData.append('mode', mode);
+
+    console.log('[Lyra Traveler] Sending translation request to:', TRAVELER_TRANSLATION_URL);
+    console.log('[Lyra Traveler] Translation request:', { language, mode, imageSize: blob?.size });
+
+    const response = await fetch(TRAVELER_TRANSLATION_URL, {
+      method: 'POST',
+      headers: {
+        'Bypass-Tunnel-Reminder': 'true'
+      },
+      body: formData,
+    });
+
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      const text = await response.text();
+      throw new Error(`Backend error (HTTP ${response.status}): ${text.substring(0, 100)}`);
+    }
+
+    const data = await response.json();
+
+    if (!response.ok || data.status === 'error') {
+      throw new Error(data.message || 'Translation failed');
+    }
+
+    travelerCurrentTranslation = data.translation || 'NO_TEXT_FOUND';
+    const translationText = document.getElementById('traveler-translation');
+    if (translationText) {
+      translationText.textContent = travelerCurrentTranslation;
+    }
+
+    const discoverBtn = document.getElementById('discover-context-btn');
+    if (discoverBtn) {
+      discoverBtn.classList.remove('hidden');
+      discoverBtn.disabled = false;
+    }
+  } catch (error) {
+    console.error('[Lyra Traveler] Translation failed:', error);
+    travelerCurrentTranslation = '';
+
+    const translationText = document.getElementById('traveler-translation');
+    if (translationText) {
+      translationText.textContent = 'Translation failed. Try another photo.';
+    }
+
+    const discoverBtn = document.getElementById('discover-context-btn');
+    if (discoverBtn) {
+      discoverBtn.classList.add('hidden');
+      discoverBtn.disabled = true;
+    }
+  } finally {
+    setTravelerTranslationLoading(false);
+  }
 }
 
 async function analyzeTravelerImage() {
@@ -899,27 +1186,16 @@ async function analyzeTravelerImage() {
 
   const language = document.getElementById('traveler-language').value || 'English';
   const mode = document.getElementById('traveler-mode').value || 'object';
-  const analyzeBtn = document.getElementById('traveler-analyze-btn');
+  const analyzeBtn = document.getElementById('discover-context-btn');
 
   if (!analyzeBtn) return;
   analyzeBtn.disabled = true;
-  analyzeBtn.textContent = 'Analyzing...';
+  setTravelerButtonLabel(analyzeBtn, 'Discovering...');
 
   try {
-    // Convert data URL to Blob if needed
-    let blob;
-    if (travelerCurrentImage.startsWith('data:')) {
-      const arr = travelerCurrentImage.split(',');
-      const mime = arr[0].match(/:(.*?);/)[1];
-      const bstr = atob(arr[1]);
-      const n = bstr.length;
-      const u8arr = new Uint8Array(n);
-      for (let i = 0; i < n; i++) {
-        u8arr[i] = bstr.charCodeAt(i);
-      }
-      blob = new Blob([u8arr], { type: mime });
-    } else {
-      blob = travelerCurrentImage;
+    const blob = await getTravelerUploadBlob();
+    if (!blob) {
+      throw new Error('No image available');
     }
 
     const formData = new FormData();
@@ -927,10 +1203,10 @@ async function analyzeTravelerImage() {
     formData.append('target_language', language);
     formData.append('mode', mode);
 
-    console.log('[Lyra Traveler] Sending request to:', TRAVELER_API_URL);
+    console.log('[Lyra Traveler] Sending request to:', TRAVELER_ANALYZE_URL);
     console.log('[Lyra Traveler] FormData:', { language, mode, imageSize: blob?.size });
 
-    const response = await fetch(TRAVELER_API_URL, {
+    const response = await fetch(TRAVELER_ANALYZE_URL, {
       method: 'POST',
       // localtunnel sometimes shows a landing page; send this header to bypass the reminder
       headers: {
@@ -974,7 +1250,20 @@ async function analyzeTravelerImage() {
     alert('Analysis failed: ' + error.message);
   } finally {
     analyzeBtn.disabled = false;
-    analyzeBtn.textContent = 'Analyze Image';
+    setTravelerButtonLabel(analyzeBtn, 'Discover Context');
+  }
+}
+
+function displayTravelerTranslation(data) {
+  const translationCard = document.getElementById('traveler-translation-card');
+  const translationText = document.getElementById('traveler-translation');
+  const discoverBtn = document.getElementById('discover-context-btn');
+
+  if (translationCard) translationCard.classList.remove('hidden');
+  if (translationText) translationText.textContent = data.translation || 'NO_TEXT_FOUND';
+  if (discoverBtn) {
+    discoverBtn.classList.remove('hidden');
+    discoverBtn.disabled = false;
   }
 }
 
@@ -1126,6 +1415,10 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('image-camera-input')?.click();
   });
 
+  document.getElementById('camera-capture-btn-mobile')?.addEventListener('click', () => {
+    document.getElementById('image-camera-input')?.click();
+  });
+
   document.getElementById('image-camera-input')?.addEventListener('change', (e) => {
     const file = e.target.files?.[0];
     if (file) handleImageSelect(file);
@@ -1133,23 +1426,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('clear-image-btn')?.addEventListener('click', () => {
     travelerCurrentImage = null;
+    clearTravelerPreviewUrl();
     document.getElementById('image-preview-container')?.classList.add('hidden');
-    const analyzeBtn = document.getElementById('traveler-analyze-btn');
-    if (analyzeBtn) analyzeBtn.disabled = true;
+    resetTravelerFlow();
   });
 
-  document.getElementById('traveler-analyze-btn')?.addEventListener('click', analyzeTravelerImage);
-
-  // Mobile camera button integrates with traveler (if on translate page, navigate to traveler)
-  document.getElementById('camera-btn-mobile')?.addEventListener('click', () => {
-    if (appState.activeSection === 'translate') {
-      setActiveSection('traveler');
-    }
-    // Trigger camera capture
-    setTimeout(() => {
-      document.getElementById('image-camera-input')?.click();
-    }, 100);
-  });
+  document.getElementById('discover-context-btn')?.addEventListener('click', analyzeTravelerImage);
 
   // Mobile mic button placeholder
   document.getElementById('mic-btn-mobile')?.addEventListener('click', () => {
@@ -1185,6 +1467,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const section = el.getAttribute('data-section') || 'translate';
       setActiveSection(section);
     });
+  });
+
+  window.addEventListener('resize', () => {
+    syncMobileNavIndicator(appState.activeSection);
   });
 
   // History clear
