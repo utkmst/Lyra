@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Lyra — Cultural Synthesis</title>
+    <link href="assets/logo.png" rel="icon" type="image/png">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&amp;display=swap" rel="stylesheet">
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        background: "#000000",
+                        surface: "#000000",
+                        "surface-dim": "#131313",
+                        "surface-container": "#0a0a0a",
+                        "surface-container-low": "#1c1b1b",
+                        "surface-container-lowest": "#0e0e0e",
+                        "surface-container-high": "#2a2a2a",
+                        "surface-container-highest": "#353534",
+                        "surface-variant": "#121212",
+                        "surface-bright": "#3a3939",
+                        primary: "#b8c3ff",
+                        "primary-container": "#2e5bff",
+                        "primary-fixed": "#dde1ff",
+                        "primary-fixed-dim": "#b8c3ff",
+                        "on-primary": "#002388",
+                        "on-primary-container": "#efefff",
+                        "on-primary-fixed": "#001356",
+                        "on-primary-fixed-variant": "#0035be",
+                        secondary: "#ddb7ff",
+                        "secondary-container": "#6f00be",
+                        "secondary-fixed": "#f0dbff",
+                        "secondary-fixed-dim": "#ddb7ff",
+                        "on-secondary": "#490080",
+                        "on-secondary-container": "#d6a9ff",
+                        "on-secondary-fixed": "#2c0051",
+                        "on-secondary-fixed-variant": "#6900b3",
+                        tertiary: "#ffb59b",
+                        "tertiary-container": "#c24100",
+                        "tertiary-fixed": "#ffdbcf",
+                        "tertiary-fixed-dim": "#ffb59b",
+                        "on-tertiary": "#5b1a00",
+                        "on-tertiary-container": "#ffece6",
+                        "on-tertiary-fixed": "#380d00",
+                        "on-tertiary-fixed-variant": "#812800",
+                        "on-background": "#e5e2e1",
+                        "on-surface": "#ffffff",
+                        "on-surface-variant": "#c4c5d9",
+                        outline: "#8e90a2",
+                        "outline-variant": "#ffffff10",
+                        error: "#ffb4ab",
+                        "error-container": "#93000a",
+                        "on-error": "#690005",
+                        "on-error-container": "#ffdad6",
+                        "inverse-surface": "#e5e2e1",
+                        "inverse-on-surface": "#313030",
+                        "inverse-primary": "#124af0",
+                        "surface-tint": "#b8c3ff",
+                        "cosmic-purple": "#6f00be",
+                        "cosmic-cyan": "#2e5bff"
+                    },
+                    borderRadius: {
+                        DEFAULT: "1rem",
+                        lg: "2rem",
+                        xl: "3rem",
+                        full: "9999px"
+                    },
+                    spacing: {
+                        "container-padding": "20px",
+                        "action-bar-height": "72px",
+                        "stack-gap": "12px",
+                        "bento-gap": "16px",
+                        gutter: "24px",
+                        "panel-gap": "16px"
+                    },
+                    fontFamily: {
+                        "label-md": ["DM Sans", "sans-serif"],
+                        "label-sm": ["DM Sans", "sans-serif"],
+                        "body-md": ["DM Sans", "sans-serif"],
+                        "body-lg": ["DM Sans", "sans-serif"],
+                        "headline-md": ["DM Sans", "sans-serif"],
+                        "headline-lg": ["DM Sans", "sans-serif"],
+                        display: ["DM Sans", "sans-serif"]
+                    },
+                    fontSize: {
+                        "label-md": ["14px", { lineHeight: "20px", letterSpacing: "0.05em", fontWeight: "600" }],
+                        "label-sm": ["12px", { lineHeight: "16px", letterSpacing: "0.02em", fontWeight: "500" }],
+                        "body-md": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+                        "body-lg": ["18px", { lineHeight: "28px", fontWeight: "400" }],
+                        "headline-md": ["24px", { lineHeight: "32px", letterSpacing: "-0.01em", fontWeight: "600" }],
+                        "headline-lg": ["32px", { lineHeight: "40px", letterSpacing: "-0.02em", fontWeight: "700" }],
+                        display: ["48px", { lineHeight: "52px", letterSpacing: "-0.04em", fontWeight: "700" }]
+                    },
+                    animation: {
+                        "slide-up-fade": "slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards",
+                        "pulse-breathe": "pulseBreathe 2s cubic-bezier(0.4, 0, 0.6, 1) infinite"
+                    },
+                    keyframes: {
+                        slideUpFade: {
+                            "0%": { opacity: "0", transform: "translateY(20px)" },
+                            "100%": { opacity: "1", transform: "translateY(0)" }
+                        },
+                        pulseBreathe: {
+                            "0%, 100%": { transform: "scale(1)", boxShadow: "0 0 20px rgba(46, 91, 255, 0.3)" },
+                            "50%": { transform: "scale(1.05)", boxShadow: "0 0 40px rgba(46, 91, 255, 0.6)" }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            font-family: "DM Sans", sans-serif;
+            overflow-x: hidden;
+        }
+
+        .bento-card {
+            background-color: #0a0a0a;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 1.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .bento-card:hover {
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        .glass-panel {
+            background: rgba(10, 10, 10, 0.7);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 1.5rem;
+        }
+
+        .action-bar {
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .pulse-glow {
+            animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+        }
+
+        @keyframes pulse-ring {
+            0% { box-shadow: 0 0 0 0 rgba(46, 91, 255, 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(46, 91, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(46, 91, 255, 0); }
+        }
+
+        .pill-input {
+            background-color: #121212 !important;
+            background: #121212 !important;
+            border: 1px solid rgba(255, 255, 255, 0.12) !important;
+            border-radius: 9999px;
+            color: #ffffff !important;
+            caret-color: #b8c3ff;
+            transition: all 0.3s ease;
+            box-shadow: none !important;
+        }
+
+        input.pill-input,
+        input.pill-input:hover,
+        input.pill-input:focus,
+        input.pill-input:active {
+            background-color: #121212 !important;
+            background: #121212 !important;
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff;
+        }
+
+        .pill-input::placeholder {
+            color: rgba(142, 144, 162, 0.65);
+            opacity: 1;
+        }
+
+        .pill-input:focus {
+            outline: none;
+            border-color: rgba(46, 91, 255, 0.55);
+            box-shadow: 0 0 0 3px rgba(46, 91, 255, 0.18);
+        }
+
+        input.pill-input:-webkit-autofill,
+        input.pill-input:-webkit-autofill:hover,
+        input.pill-input:-webkit-autofill:focus,
+        input.pill-input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 1000px #121212 inset !important;
+            box-shadow: 0 0 0 1000px #121212 inset !important;
+            -webkit-text-fill-color: #ffffff !important;
+            caret-color: #b8c3ff;
+            transition: background-color 99999s ease-in-out 0s;
+        }
+
+        .ghost-input {
+            background: transparent !important;
+            border: none;
+            color: #ffffff;
+            resize: none;
+        }
+
+        .ghost-input:focus {
+            outline: none;
+            box-shadow: none;
+        }
+
+        .ghost-input::placeholder {
+            color: rgba(142, 144, 162, 0.5);
+        }
+
+        .autocomplete-wrapper {
+            position: relative;
+        }
+
+        .autocomplete-list {
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 0;
+            right: 0;
+            z-index: 60;
+            max-height: 200px;
+            overflow-y: auto;
+            margin: 0;
+            padding: 6px;
+            list-style: none;
+            background: rgba(18, 18, 18, 0.98);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+        }
+
+        .autocomplete-item {
+            padding: 10px 14px;
+            border-radius: 0.75rem;
+            color: #e5e2e1;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.15s ease, color 0.15s ease;
+        }
+
+        .autocomplete-item:hover,
+        .autocomplete-item.is-highlighted {
+            background: rgba(46, 91, 255, 0.15);
+            color: #b8c3ff;
+        }
+
+        .nav-item.is-active,
+        .nav-item.aurora-ring--active {
+            color: #b8c3ff !important;
+            border-bottom: 2px solid #2e5bff;
+            opacity: 1;
+        }
+
+        .dynamic-bg-container {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            overflow: hidden;
+            background: #000000;
+            pointer-events: none;
+        }
+
+        .dynamic-bg-media {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 1.2s ease;
+            filter: blur(14px);
+            transform: scale(1.08);
+        }
+
+        .dynamic-bg-media.is-active { opacity: 0.4; }
+
+        .dynamic-bg-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.92) 100%);
+        }
+
+        .fluid-bg-container {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            transition: opacity 1.2s ease;
+        }
+
+        .fluid-bg-container.is-hidden { opacity: 0; }
+
+        .liquid-blob {
+            position: absolute;
+            filter: blur(120px);
+            opacity: 0.35;
+            border-radius: 50%;
+            animation: fluidMove 20s infinite ease-in-out alternate;
+        }
+
+        .lb-1 { width: 70vw; height: 70vh; background: #2e5bff; top: -10%; left: -10%; }
+        .lb-2 { width: 60vw; height: 60vh; background: #6f00be; bottom: -10%; right: -10%; animation-delay: -5s; }
+        .lb-3 { width: 80vw; height: 80vh; background: #124af0; top: 20%; left: 10%; animation-delay: -10s; opacity: 0.25; }
+
+        @keyframes fluidMove {
+            0% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(8%, -8%) scale(1.05); }
+            66% { transform: translate(-8%, 8%) scale(0.95); }
+            100% { transform: translate(4%, 4%) scale(1.02); }
+        }
+
+        #bg-freeze {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: blur(14px);
+            transform: scale(1.08);
+            opacity: 0;
+            transition: opacity 1.2s ease;
+        }
+
+        #bg-freeze.is-active { opacity: 0.4; }
+
+        .toggle-thumb { transition: transform 0.25s ease; }
+        .toggle-thumb.is-on { transform: translateX(20px); }
+
+        .theme-option.is-active .theme-option-inner {
+            border-color: var(--theme-primary, #2e5bff);
+            box-shadow: 0 0 16px rgba(46, 91, 255, 0.25);
+        }
+
+        .ui-lang-option.aurora-ring--active .ui-lang-inner {
+            background: rgba(46, 91, 255, 0.2);
+            border: 1px solid rgba(46, 91, 255, 0.4);
+        }
+
+        :root, body[data-theme="cosmic"] {
+            --theme-primary: #2e5bff;
+            --theme-secondary: #b8c3ff;
+            --theme-accent-1: #124af0;
+            --theme-accent-2: #6f00be;
+            --blob-1: #2e5bff;
+            --blob-2: #6f00be;
+            --blob-3: #124af0;
+        }
+
+        body[data-theme="aurora"] {
+            --theme-primary: #10b981;
+            --theme-secondary: #22d3ee;
+            --theme-accent-1: #059669;
+            --theme-accent-2: #06b6d4;
+            --blob-1: #10b981;
+            --blob-2: #0f766e;
+            --blob-3: #06b6d4;
+        }
+
+        body[data-theme="rose"] {
+            --theme-primary: #f43f5e;
+            --theme-secondary: #fb7185;
+            --theme-accent-1: #db2777;
+            --theme-accent-2: #f97316;
+            --blob-1: #ec4899;
+            --blob-2: #881337;
+            --blob-3: #f97316;
+        }
+
+        body[data-theme] .text-primary { color: var(--theme-secondary) !important; }
+        body[data-theme] .text-secondary { color: var(--theme-secondary) !important; }
+        body[data-theme] .bg-primary-container { background-color: var(--theme-primary) !important; }
+        body[data-theme] #progress-line { background-color: var(--theme-primary); box-shadow: 0 0 10px var(--theme-primary); }
+        body[data-theme] .lb-1 { background: var(--blob-1); }
+        body[data-theme] .lb-2 { background: var(--blob-2); }
+        body[data-theme] .lb-3 { background: var(--blob-3); }
+
+        body[data-effects="off"] .liquid-blob { animation: none !important; }
+        body[data-effects="off"] .pulse-glow { animation: none !important; }
+        body[data-effects="off"] .motion-safe\:animate-pulse-breathe { animation: none !important; }
+
+        #synthesize-btn.is-loading .synth-btn-inner {
+            animation-duration: 0.8s;
+        }
+
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+
+        @media (prefers-reduced-motion: reduce) {
+            .motion-safe\:animate-slide-up-fade { animation: none; opacity: 1; transform: none; }
+            .motion-safe\:animate-pulse-breathe, .pulse-glow { animation: none; }
+        }
+
+        @media (min-width: 768px) {
+            .autocomplete-list { bottom: auto; top: calc(100% + 8px); }
+        }
+
+        .translate-controls--desktop {
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            .translate-controls--desktop.translate-controls--visible {
+                display: flex;
+            }
+        }
+
+        .translate-controls--mobile {
+            display: block;
+        }
+
+        .translate-controls--mobile:not(.translate-controls--visible) {
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            .translate-controls--mobile {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col font-body-md selection:bg-primary-container selection:text-white" data-theme="cosmic" data-effects="on">
+
+    <!-- Dynamic Background (settings-controlled) -->
+    <div class="dynamic-bg-container" id="dynamic-bg">
+        <video autoplay class="dynamic-bg-media" id="bg-video" loop muted playsinline>
+            <source src="assets/background.mp4" type="video/mp4">
+        </video>
+        <img alt="" class="dynamic-bg-media hidden" id="bg-gif" src="assets/background.gif">
+        <img alt="" class="hidden" id="bg-freeze">
+        <div class="dynamic-bg-overlay"></div>
+        <div class="fluid-bg-container is-hidden" id="bg-fallback">
+            <div class="liquid-blob lb-1"></div>
+            <div class="liquid-blob lb-2"></div>
+            <div class="liquid-blob lb-3"></div>
+        </div>
+    </div>
+
+    <!-- ========== DESKTOP TOP NAV ========== -->
+    <nav class="hidden md:flex justify-between items-center w-full px-container-padding h-action-bar-height max-w-7xl mx-auto border-b border-outline-variant/10 bg-background/80 backdrop-blur-xl z-40 sticky top-0">
+        <div class="flex items-center gap-12">
+            <div class="flex items-center gap-3">
+                <img alt="Lyra logo" class="w-8 h-8 object-contain" src="assets/logo.png">
+                <span class="font-headline-md text-headline-md font-bold tracking-tighter text-on-surface">Lyra</span>
+            </div>
+            <div class="flex items-center gap-8">
+                <button class="nav-item is-active text-primary font-label-md text-label-md pb-1 transition-all duration-300" data-section="translate" type="button">
+                    <span data-i18n="nav.translate">Translate</span>
+                </button>
+                <button class="nav-item text-outline font-label-md text-label-md hover:text-on-surface transition-all duration-300" data-section="history" type="button">
+                    <span data-i18n="nav.history">History</span>
+                </button>
+                <button class="nav-item text-outline font-label-md text-label-md hover:text-on-surface transition-all duration-300" data-section="settings" type="button">
+                    <span data-i18n="nav.settings">Settings</span>
+                </button>
+                <button class="nav-item text-outline font-label-md text-label-md hover:text-on-surface transition-all duration-300" data-section="engine" type="button">
+                    <span data-i18n="nav.engine">Engine</span>
+                </button>
+                <button class="nav-item text-outline font-label-md text-label-md hover:text-on-surface transition-all duration-300" data-section="traveler" type="button">
+                    <span>Traveler</span>
+                </button>
+            </div>
+        </div>
+        <p class="font-label-sm text-label-sm text-outline uppercase tracking-widest" data-i18n="brand.tagline">Cultural Synthesis</p>
+    </nav>
+
+    <!-- ========== MOBILE TOP HEADER ========== -->
+    <header class="md:hidden flex items-center justify-between px-container-padding h-16 w-full bg-background border-b border-outline-variant/10 fixed top-0 z-50">
+        <div class="flex items-center gap-3">
+            <img alt="Lyra logo" class="w-8 h-8 object-contain" src="assets/logo.png">
+            <h1 class="font-headline-md text-headline-md tracking-tighter text-on-surface">Lyra</h1>
+        </div>
+        <button class="mobile-nav-item text-primary hover:opacity-80 active:scale-95 transition-all duration-300 p-2" data-section="settings" type="button" aria-label="Settings">
+            <span class="material-symbols-outlined">settings</span>
+        </button>
+    </header>
+
+    <!-- ========== MAIN CANVAS ========== -->
+    <main class="flex-1 relative z-10 w-full max-w-7xl mx-auto px-container-padding pt-20 md:pt-8 pb-36 md:pb-36" id="main-canvas">
+
+        <!-- TRANSLATE SECTION -->
+        <section class="app-section is-active" id="section-translate" aria-labelledby="section-translate-title">
+
+            <!-- Desktop: equal-width bento grid -->
+            <div class="hidden md:grid md:grid-cols-2 gap-bento-gap w-full h-[58vh] min-h-[480px] max-h-[720px]">
+                <!-- Original Concept -->
+                <div class="bento-card flex flex-col p-10 relative overflow-hidden group h-full min-h-0">
+                    <div class="flex items-center justify-between mb-6">
+                        <span class="font-label-sm text-label-sm text-outline uppercase tracking-widest" data-i18n="label.originalConcept">Original Concept</span>
+                        <span class="px-3 py-1 rounded-full border border-outline-variant/30 font-label-sm text-label-sm text-outline flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-outline"></span>
+                            <span data-i18n="label.autoDetect">Auto-Detect</span>
+                        </span>
+                    </div>
+                    <div class="flex-grow flex flex-col min-h-0">
+                        <textarea class="ghost-input w-full h-full font-headline-lg text-headline-lg resize-none focus:ring-0 p-0 min-h-0" data-i18n-placeholder="placeholder.source" id="source-text" placeholder="Enter text or drop a document here to begin cultural synthesis..." spellcheck="false"></textarea>
+                    </div>
+                    <div class="absolute -top-24 -right-24 w-48 h-48 bg-primary/5 rounded-full blur-[50px] pointer-events-none"></div>
+                </div>
+
+                <!-- Synthesized Output -->
+                <div class="bento-card flex flex-col p-10 bg-[#121212] border-outline-variant/20 relative overflow-hidden h-full min-h-0">
+                    <div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: radial-gradient(circle at 80% 20%, rgba(46, 91, 255, 0.4) 0%, transparent 50%);"></div>
+                    <div class="absolute top-0 left-0 h-[2px] bg-primary-container w-0 transition-all duration-[2000ms] ease-in-out shadow-[0_0_10px_#2e5bff] z-20" id="progress-line"></div>
+                    <div class="flex items-center justify-between mb-6 relative z-10">
+                        <div class="flex items-center gap-3">
+                            <div class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></div>
+                            <span class="font-label-sm text-label-sm text-primary uppercase tracking-widest" data-i18n="label.synthesizedOutput">Synthesized Output</span>
+                        </div>
+                        <button class="w-10 h-10 rounded-full border border-outline-variant/30 flex items-center justify-center text-outline hover:text-white hover:border-white/30 transition-all glass-panel" data-i18n-title="action.copy" id="copy-btn" title="Copy to clipboard" type="button">
+                            <span class="material-symbols-outlined text-[20px]">content_copy</span>
+                        </button>
+                    </div>
+                    <div class="flex-grow flex flex-col min-h-0 relative z-10 overflow-y-auto" id="output-content">
+                        <div class="text-center py-8">
+                            <span class="material-symbols-outlined text-[48px] text-white/15 mb-4 block">translate</span>
+                            <p class="font-body-md text-outline" data-i18n="status.awaiting" id="output-awaiting">Awaiting input for synthesis...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile: stacked bento cards -->
+            <div class="md:hidden flex flex-col gap-bento-gap max-w-md mx-auto w-full min-h-[520px]">
+                <article class="bento-card rounded-[28px] p-6 flex flex-col gap-4 flex-1 min-h-[240px] relative overflow-hidden group motion-safe:animate-slide-up-fade" style="animation-delay: 100ms;">
+                    <div class="flex items-center justify-between z-10">
+                        <span class="font-label-md text-label-md text-outline tracking-wider uppercase" data-i18n="label.originalConcept">Original Concept</span>
+                        <span class="material-symbols-outlined text-outline-variant text-sm">auto_awesome</span>
+                    </div>
+                    <textarea class="ghost-input w-full font-headline-md text-headline-md z-10 leading-snug min-h-[100px] flex-1" data-i18n-placeholder="placeholder.source" id="source-text-mobile" placeholder="Enter text or drop a document here to begin cultural synthesis..." spellcheck="false"></textarea>
+                    <div class="absolute -top-24 -right-24 w-48 h-48 bg-primary/5 rounded-full blur-[50px] pointer-events-none"></div>
+                </article>
+
+                <article class="bento-card rounded-[28px] p-6 flex flex-col gap-4 flex-1 min-h-[240px] relative overflow-hidden border-primary/20 motion-safe:animate-slide-up-fade" style="animation-delay: 250ms;">
+                    <div class="absolute top-0 left-0 h-[2px] bg-primary-container w-0 transition-all duration-[2000ms] ease-in-out z-20 md:hidden mobile-progress" id="progress-line-mobile"></div>
+                    <div class="flex items-center justify-between z-10">
+                        <span class="font-label-md text-label-md text-primary tracking-wider uppercase" data-i18n="label.synthesizedOutput">Synthesized Output</span>
+                        <button class="text-outline hover:text-primary p-1 transition-colors" data-i18n-title="action.copy" id="copy-btn-mobile" title="Copy to clipboard" type="button">
+                            <span class="material-symbols-outlined text-[20px]">content_copy</span>
+                        </button>
+                    </div>
+                    <div class="flex-1 flex flex-col justify-center z-10 overflow-y-auto" id="output-content-mobile">
+                        <div class="text-center py-6">
+                            <span class="material-symbols-outlined text-[40px] text-white/15 mb-3 block">translate</span>
+                            <p class="font-body-md text-outline text-sm" data-i18n="status.awaiting">Awaiting input for synthesis...</p>
+                        </div>
+                    </div>
+                    <div class="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-primary/10 to-transparent blur-[30px] opacity-50 pointer-events-none"></div>
+                </article>
+            </div>
+        </section>
+
+        <!-- HISTORY SECTION -->
+        <section class="app-section hidden" id="section-history" aria-labelledby="section-history-title">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h2 class="font-headline-lg text-headline-lg text-on-surface" data-i18n="nav.history" id="section-history-title">History</h2>
+                    <p class="font-body-md text-outline mt-1" data-i18n="history.subtitle">Session-only timeline of your recent syntheses.</p>
+                </div>
+                <button class="pill-input px-4 py-2 font-label-sm text-label-sm text-outline hover:text-white transition-colors" id="history-clear-btn" type="button">
+                    <span data-i18n="history.clear">Clear Session</span>
+                </button>
+            </div>
+            <div class="grid gap-4 lg:grid-cols-2" id="history-list" aria-live="polite"></div>
+        </section>
+
+        <!-- SETTINGS SECTION -->
+        <section class="app-section hidden" id="section-settings" aria-labelledby="section-settings-title">
+            <div class="space-y-8 max-w-2xl">
+                <div>
+                    <h2 class="font-headline-lg text-headline-lg text-on-surface" data-i18n="nav.settings" id="section-settings-title">Settings</h2>
+                    <p class="font-body-md text-outline mt-1" data-i18n="settings.subtitle">Tune Lyra's mood, motion, and interface language.</p>
+                </div>
+
+                <div class="bento-card p-6 space-y-4">
+                    <h3 class="font-headline-md text-headline-md text-on-surface" data-i18n="settings.themeTitle">Theme</h3>
+                    <p class="font-body-md text-outline text-sm" data-i18n="settings.themeDesc">Choose the color universe for gradients and accents.</p>
+                    <div class="mt-4 grid md:grid-cols-3 gap-4" id="theme-options">
+                        <button class="theme-option w-full text-left" data-theme="cosmic" type="button">
+                            <span class="theme-option-inner flex items-center gap-3 px-4 py-3 rounded-xl border border-outline-variant/20 transition-all">
+                                <span class="h-8 w-8 rounded-full bg-gradient-to-tr from-[#6f00be] via-primary to-primary-container shrink-0"></span>
+                                <span>
+                                    <span class="block text-sm font-semibold text-on-surface" data-i18n="theme.cosmic">Cosmic</span>
+                                    <span class="block text-xs text-outline" data-i18n="theme.cosmicDesc">Default Lyra palette</span>
+                                </span>
+                            </span>
+                        </button>
+                        <button class="theme-option w-full text-left" data-theme="aurora" type="button">
+                            <span class="theme-option-inner flex items-center gap-3 px-4 py-3 rounded-xl border border-outline-variant/20 transition-all">
+                                <span class="h-8 w-8 rounded-full bg-gradient-to-tr from-emerald-400 via-cyan-400 to-sky-500 shrink-0"></span>
+                                <span>
+                                    <span class="block text-sm font-semibold text-on-surface" data-i18n="theme.aurora">Aurora</span>
+                                    <span class="block text-xs text-outline" data-i18n="theme.auroraDesc">Cool green & cyan</span>
+                                </span>
+                            </span>
+                        </button>
+                        <button class="theme-option w-full text-left" data-theme="rose" type="button">
+                            <span class="theme-option-inner flex items-center gap-3 px-4 py-3 rounded-xl border border-outline-variant/20 transition-all">
+                                <span class="h-8 w-8 rounded-full bg-gradient-to-tr from-fuchsia-400 via-rose-400 to-amber-300 shrink-0"></span>
+                                <span>
+                                    <span class="block text-sm font-semibold text-on-surface" data-i18n="theme.rose">Rose Nebula</span>
+                                    <span class="block text-xs text-outline" data-i18n="theme.roseDesc">Warm, storytelling</span>
+                                </span>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bento-card p-6 space-y-4">
+                    <h3 class="font-headline-md text-headline-md text-on-surface" data-i18n="settings.effectsTitle">Effects</h3>
+                    <p class="font-body-md text-outline text-sm" data-i18n="settings.effectsDesc">Control motion and glow for focus-friendly sessions.</p>
+                    <div class="mt-4 space-y-4">
+                        <label class="flex items-center justify-between gap-4">
+                            <div>
+                                <span class="block text-sm font-semibold text-on-surface" data-i18n="settings.dynamicLights">Dynamic Lights</span>
+                                <span class="block text-xs text-outline" data-i18n="settings.dynamicLightsDesc">Toggle the rotating aurora rings.</span>
+                            </div>
+                            <button class="relative inline-flex h-7 w-12 items-center rounded-full bg-surface-container-high px-[3px]" id="effects-toggle" type="button">
+                                <span class="toggle-thumb inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary-container text-[10px] font-semibold text-white is-on" id="effects-toggle-thumb">ON</span>
+                            </button>
+                        </label>
+                        <label class="flex items-center justify-between gap-4">
+                            <div>
+                                <span class="block text-sm font-semibold text-on-surface" data-i18n="settings.dynamicBackground">Dynamic Background</span>
+                                <span class="block text-xs text-outline" data-i18n="settings.dynamicBackgroundDesc">When off, freezes the current video frame.</span>
+                            </div>
+                            <button class="relative inline-flex h-7 w-12 items-center rounded-full bg-surface-container-high px-[3px]" id="background-toggle" type="button">
+                                <span class="toggle-thumb inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary-container text-[10px] font-semibold text-white is-on" id="background-toggle-thumb">ON</span>
+                            </button>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="bento-card p-6 space-y-4">
+                    <h3 class="font-headline-md text-headline-md text-on-surface" data-i18n="settings.languageTitle">Interface Language</h3>
+                    <p class="font-body-md text-outline text-sm" data-i18n="settings.languageDesc">Affects interface labels, not synthesized text.</p>
+                    <div class="mt-4 flex flex-wrap gap-3" id="ui-language-options">
+                        <button class="ui-lang-option" data-lang="en" type="button">
+                            <span class="ui-lang-inner px-4 py-2 rounded-full text-sm border border-outline-variant/20 text-on-surface">English</span>
+                        </button>
+                        <button class="ui-lang-option" data-lang="tr" type="button">
+                            <span class="ui-lang-inner px-4 py-2 rounded-full text-sm border border-outline-variant/20 text-on-surface">Türkçe (beta)</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ENGINE SECTION -->
+        <section class="app-section hidden" id="section-engine" aria-labelledby="section-engine-title">
+            <div class="mb-6">
+                <h2 class="font-headline-lg text-headline-lg text-on-surface" data-i18n="nav.engine" id="section-engine-title">Engine</h2>
+                <p class="font-body-md text-outline mt-1" data-i18n="engine.subtitle">Peek into Lyra's Stage 1 brain for your latest synthesis.</p>
+            </div>
+            <div id="engine-empty" class="bento-card px-6 py-5 flex items-center gap-3 text-outline">
+                <span class="material-symbols-outlined text-[22px] text-primary">info</span>
+                <span data-i18n="engine.empty">No engine data yet. Run a synthesis to inspect its semantic anatomy.</span>
+            </div>
+            <div id="engine-content" class="hidden grid gap-6 lg:grid-cols-[minmax(0,1.2fr),minmax(0,1fr)]">
+                <div class="bento-card p-6 space-y-4">
+                    <h3 class="font-headline-md text-headline-md text-on-surface flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[20px] text-primary">psychology</span>
+                        <span data-i18n="engine.coreMeaning">Core Meaning</span>
+                    </h3>
+                    <p class="font-label-sm text-label-sm text-outline uppercase tracking-[0.22em]" data-i18n="engine.coreMeaningDesc">Neutral semantic backbone</p>
+                    <div class="mt-3 rounded-2xl bg-surface-container-high/50 border border-outline-variant/20 px-4 py-3 text-sm leading-relaxed text-on-surface" id="engine-core-meaning"></div>
+                </div>
+                <div class="space-y-4">
+                    <div class="bento-card p-5 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="font-label-sm text-label-sm text-outline tracking-[0.22em] uppercase" data-i18n="engine.valence">Valence</h4>
+                                <p class="font-body-md text-on-surface" id="engine-valence-label"></p>
+                            </div>
+                            <span class="material-symbols-outlined text-[22px] text-primary" id="engine-valence-icon">mood</span>
+                        </div>
+                        <div class="w-full h-2 rounded-full bg-surface-container-high overflow-hidden">
+                            <div class="h-full rounded-full bg-gradient-to-r from-emerald-400 via-amber-300 to-rose-400" id="engine-valence-bar" style="width: 50%;"></div>
+                        </div>
+                    </div>
+                    <div class="bento-card p-5 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="font-label-sm text-label-sm text-outline tracking-[0.22em] uppercase" data-i18n="engine.speechAct">Speech Act</h4>
+                                <p class="font-body-md text-on-surface" id="engine-speech-act"></p>
+                            </div>
+                            <span class="material-symbols-outlined text-[22px] text-primary">record_voice_over</span>
+                        </div>
+                        <p class="font-body-md text-outline text-xs leading-relaxed" id="engine-entities"></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TRAVELER SECTION (Vision Mode) -->
+        <section class="app-section hidden" id="section-traveler" aria-labelledby="section-traveler-title">
+            <div class="space-y-8 max-w-2xl">
+                <div>
+                    <h2 class="font-headline-lg text-headline-lg text-on-surface" id="section-traveler-title">Traveler Mode</h2>
+                    <p class="font-body-md text-outline mt-1">Snap a photo of a menu, sign, or object. Get instant explanations in your target language.</p>
+                </div>
+
+                <!-- Camera/Image Upload -->
+                <div class="bento-card p-6 space-y-4">
+                    <h3 class="font-headline-md text-headline-md text-on-surface flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[20px] text-primary">photo_camera</span>
+                        <span>Capture or Upload</span>
+                    </h3>
+                    <p class="font-body-md text-outline text-sm">Take a photo with your camera or upload an image from your device.</p>
+
+                    <!-- Hidden file input + camera input -->
+                    <input type="file" id="image-file-input" accept="image/*" class="hidden" />
+                    <input type="file" id="image-camera-input" accept="image/*" capture="environment" class="hidden" />
+
+                    <!-- Buttons for upload/camera -->
+                    <div class="flex gap-3 mt-4">
+                        <button class="flex-1 py-3 px-4 rounded-xl border border-outline-variant/30 text-on-surface font-label-md hover:bg-surface-container-high transition-colors flex items-center justify-center gap-2" id="upload-image-btn" type="button">
+                            <span class="material-symbols-outlined">upload_file</span>
+                            <span>Upload Image</span>
+                        </button>
+                        <button class="flex-1 py-3 px-4 rounded-xl border border-outline-variant/30 text-on-surface font-label-md hover:bg-surface-container-high transition-colors flex items-center justify-center gap-2 md:flex hidden" id="camera-capture-btn" type="button">
+                            <span class="material-symbols-outlined">photo_camera</span>
+                            <span>Take Photo</span>
+                        </button>
+                    </div>
+
+                    <!-- Image preview -->
+                    <div id="image-preview-container" class="hidden mt-4">
+                        <img id="image-preview" class="w-full rounded-xl max-h-64 object-cover" alt="Preview" />
+                        <button class="mt-3 text-outline text-sm hover:text-white transition-colors" id="clear-image-btn" type="button">
+                            <span class="material-symbols-outlined text-sm mr-1">close</span>Clear
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Mode + Language Selection -->
+                <div class="bento-card p-6 space-y-4">
+                    <h3 class="font-headline-md text-headline-md text-on-surface">Analysis Options</h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-sm font-label-sm text-outline mb-2">Mode</label>
+                            <select id="traveler-mode" class="w-full py-2 px-3 rounded-lg bg-surface-container-high border border-outline-variant/30 text-on-surface font-body-md">
+                                <option value="object">General Object</option>
+                                <option value="menu">Restaurant Menu</option>
+                                <option value="sign">Sign / Notice</option>
+                                <option value="product">Product Label</option>
+                                <option value="currency">Money / Price</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-label-sm text-outline mb-2">Language</label>
+                            <input type="text" id="traveler-language" placeholder="e.g. Turkish" class="pill-input w-full py-2 px-3 font-body-md" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analyze Button -->
+                <button class="w-full py-4 px-6 rounded-xl bg-primary-container text-white font-label-md text-label-md font-bold flex items-center justify-center gap-2 pulse-glow hover:bg-[#124af0] transition-colors disabled:opacity-60" id="traveler-analyze-btn" type="button" disabled>
+                    <span class="material-symbols-outlined text-[20px]">auto_awesome</span>
+                    <span>Analyze Image</span>
+                </button>
+
+                <!-- Results -->
+                <div id="traveler-results" class="hidden space-y-4">
+                    <!-- Safety Flag Banner -->
+                    <div id="safety-flag-banner" class="hidden p-4 rounded-xl border-l-4" style="border-left-color: #ffb4ab;">
+                        <div class="flex items-start gap-3">
+                            <span class="material-symbols-outlined text-[20px] text-error flex-shrink-0 mt-1">warning</span>
+                            <div>
+                                <p class="font-label-md text-label-md text-error mb-1" id="safety-flag-title">Warning</p>
+                                <p class="font-body-md text-error text-sm" id="safety-flag-text"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Explanation -->
+                    <div class="bento-card p-6">
+                        <h4 class="font-label-md text-label-md text-outline uppercase tracking-[0.22em] mb-3">Explanation</h4>
+                        <p class="font-headline-lg text-headline-lg text-on-surface leading-relaxed" id="traveler-explanation"></p>
+                    </div>
+
+                    <!-- TTS Playback -->
+                    <div id="tts-controls" class="hidden bento-card p-4 flex items-center gap-3">
+                        <button class="flex-1 py-3 px-4 rounded-lg bg-primary-container text-white font-label-md hover:bg-[#124af0] transition-colors flex items-center justify-center gap-2" id="play-audio-btn" type="button">
+                            <span class="material-symbols-outlined">volume_up</span>
+                            <span>Play Audio</span>
+                        </button>
+                        <audio id="traveler-audio" class="hidden" />
+                    </div>
+
+                    <!-- Save to History -->
+                    <button class="w-full py-3 px-4 rounded-xl border border-outline-variant/30 text-on-surface font-label-md hover:bg-surface-container-high transition-colors flex items-center justify-center gap-2" id="save-to-history-btn" type="button">
+                        <span class="material-symbols-outlined">bookmark</span>
+                        <span>Save to History</span>
+                    </button>
+                </div>
+
+                <!-- History View -->
+                <div>
+                    <h3 class="font-headline-md text-headline-md text-on-surface mb-4">Capture History</h3>
+                    <div id="traveler-history-list" class="space-y-3">
+                        <div class="text-center py-8 text-outline">
+                            <span class="material-symbols-outlined text-[40px] mb-3 text-white/15 block">image_search</span>
+                            <p class="font-body-md">No captures yet. Start by uploading an image.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ========== DESKTOP FLOATING ACTION BAR (Translate only) ========== -->
+    <div class="translate-controls translate-controls--desktop glass-panel fixed bottom-8 left-1/2 -translate-x-1/2 rounded-full px-4 py-3 items-center gap-5 z-50 border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] translate-controls--visible" id="translate-controls-desktop">
+        <div class="autocomplete-wrapper w-44">
+            <label class="sr-only" data-i18n="label.targetContext" for="target-language">Target Context</label>
+            <input autocomplete="off" class="pill-input font-label-md text-label-md px-4 py-2 w-full ring-0 focus:ring-0" data-i18n-placeholder="placeholder.language" id="target-language" placeholder="Type a language..." type="text">
+            <ul class="autocomplete-list hidden" id="language-suggestions" role="listbox"></ul>
+        </div>
+        <div class="w-px h-8 bg-outline-variant/20"></div>
+        <div class="autocomplete-wrapper w-40">
+            <label class="sr-only" data-i18n="label.nuanceProfile" for="persona">Nuance Profile</label>
+            <input autocomplete="off" class="pill-input font-label-md text-label-md px-4 py-2 w-full ring-0 focus:ring-0" data-i18n-placeholder="placeholder.persona" id="persona" placeholder="Type a persona..." type="text">
+            <ul class="autocomplete-list hidden" id="persona-suggestions" role="listbox"></ul>
+        </div>
+        <div class="w-px h-8 bg-outline-variant/20"></div>
+        <button class="h-12 px-8 rounded-full bg-primary-container text-white font-label-md text-label-md font-bold flex items-center justify-center gap-2 pulse-glow hover:bg-[#124af0] transition-colors" id="synthesize-btn" type="button">
+            <span class="material-symbols-outlined text-[20px] synth-btn-inner" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+            <span data-i18n="action.synthesize" id="synthesize-label">Synthesize</span>
+        </button>
+    </div>
+
+    <!-- ========== MOBILE BOTTOM CONTROLS (Translate only) ========== -->
+    <div class="md:hidden fixed bottom-0 w-full z-40 max-w-md mx-auto left-0 right-0 translate-controls translate-controls--mobile translate-controls--visible" id="translate-controls-mobile">
+        <!-- Pill selectors -->
+        <div class="flex justify-center gap-3 mb-4 px-container-padding">
+            <div class="autocomplete-wrapper">
+                <input autocomplete="off" class="pill-input font-label-md text-label-md px-5 py-2 w-full min-w-[120px] ring-0 focus:ring-0" data-i18n-placeholder="placeholder.language" id="target-language-mobile" placeholder="Language..." type="text">
+                <ul class="autocomplete-list hidden" id="language-suggestions-mobile" role="listbox"></ul>
+            </div>
+            <div class="autocomplete-wrapper">
+                <input autocomplete="off" class="pill-input font-label-md text-label-md px-5 py-2 w-full min-w-[100px] ring-0 focus:ring-0" data-i18n-placeholder="placeholder.persona" id="persona-mobile" placeholder="Persona..." type="text">
+                <ul class="autocomplete-list hidden" id="persona-suggestions-mobile" role="listbox"></ul>
+            </div>
+        </div>
+        <!-- Action bar -->
+        <nav class="h-action-bar-height action-bar flex justify-center items-center px-8 relative rounded-t-2xl">
+            <div class="flex items-center justify-between w-full max-w-md px-2">
+                <button class="text-outline hover:text-white/90 active:scale-95 transition-all duration-300 p-2 rounded-full" id="mic-btn-mobile" type="button" aria-label="Microphone">
+                    <span class="material-symbols-outlined">mic</span>
+                </button>
+
+                <button class="relative -top-6 bg-primary-container text-on-primary-container rounded-full w-20 h-20 flex items-center justify-center shadow-[0_0_30px_rgba(46,91,255,0.3)] hover:scale-105 active:scale-95 transition-all duration-300 border-2 border-background motion-safe:animate-pulse-breathe" id="synthesize-btn-mobile" type="button">
+                    <span class="material-symbols-outlined text-3xl text-white synth-btn-inner" style="font-variation-settings: 'FILL' 1;">graphic_eq</span>
+                </button>
+
+                <button class="text-outline hover:text-white/90 active:scale-95 transition-all duration-300 p-2 rounded-full" id="camera-btn-mobile" type="button" aria-label="Camera">
+                    <span class="material-symbols-outlined">photo_camera</span>
+                </button>
+            </div>
+        </nav>
+    </div>
+
+    <!-- ========== MOBILE BOTTOM NAV ========== -->
+    <nav class="md:hidden fixed left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-sm z-30 flex justify-around items-center h-14 px-4 rounded-full border border-white/10 bg-surface-container/90 backdrop-blur-3xl bottom-4 transition-all duration-300" id="mobile-bottom-nav">
+        <button class="mobile-nav-item flex flex-col items-center gap-0.5 text-primary p-2 transition-all" data-section="translate" type="button">
+            <span class="material-symbols-outlined text-[22px]" style="font-variation-settings: 'FILL' 1;">translate</span>
+            <span class="text-[10px] font-medium tracking-wide" data-i18n="nav.translate">Translate</span>
+        </button>
+        <button class="mobile-nav-item flex flex-col items-center gap-0.5 text-outline p-2 transition-all" data-section="history" type="button">
+            <span class="material-symbols-outlined text-[22px]">auto_stories</span>
+            <span class="text-[10px] font-medium tracking-wide" data-i18n="nav.history">History</span>
+        </button>
+        <button class="mobile-nav-item flex flex-col items-center gap-0.5 text-outline p-2 transition-all" data-section="traveler" type="button">
+            <span class="material-symbols-outlined text-[22px]">photo_camera</span>
+            <span class="text-[10px] font-medium tracking-wide">Traveler</span>
+        </button>
+        <button class="mobile-nav-item flex flex-col items-center gap-0.5 text-outline p-2 transition-all" data-section="settings" type="button">
+            <span class="material-symbols-outlined text-[22px]">settings</span>
+            <span class="text-[10px] font-medium tracking-wide" data-i18n="nav.settings">Settings</span>
+        </button>
+    </nav>
+
+    <script src="script.js"></script>
+</body>
+</html>

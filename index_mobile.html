@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Lyra - Cultural Synthesis</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "inverse-surface": "#e5e2e1",
+                      "on-primary-fixed-variant": "#0035be",
+                      "on-secondary-fixed": "#2c0051",
+                      "on-background": "#e5e2e1",
+                      "primary-fixed-dim": "#b8c3ff",
+                      "on-surface-variant": "#c4c5d9",
+                      "primary-container": "#2e5bff",
+                      "error-container": "#93000a",
+                      "secondary": "#ddb7ff",
+                      "surface-container-high": "#2a2a2a",
+                      "outline-variant": "#434656",
+                      "tertiary": "#ffb59b",
+                      "secondary-fixed": "#f0dbff",
+                      "surface-dim": "#131313",
+                      "surface-tint": "#b8c3ff",
+                      "primary-fixed": "#dde1ff",
+                      "outline": "#8e90a2",
+                      "on-error": "#690005",
+                      "surface-container-low": "#1c1b1b",
+                      "tertiary-container": "#c24100",
+                      "on-primary-fixed": "#001356",
+                      "on-tertiary": "#5b1a00",
+                      "on-tertiary-fixed-variant": "#812800",
+                      "primary": "#b8c3ff",
+                      "inverse-on-surface": "#313030",
+                      "secondary-container": "#6f00be",
+                      "surface-bright": "#3a3939",
+                      "on-secondary-container": "#d6a9ff",
+                      "background": "#131313",
+                      "inverse-primary": "#124af0",
+                      "error": "#ffb4ab",
+                      "secondary-fixed-dim": "#ddb7ff",
+                      "on-surface": "#e5e2e1",
+                      "on-tertiary-container": "#ffece6",
+                      "on-secondary-fixed-variant": "#6900b3",
+                      "on-secondary": "#490080",
+                      "surface": "#131313",
+                      "surface-container-lowest": "#0e0e0e",
+                      "surface-variant": "#353534",
+                      "surface-container": "#201f1f",
+                      "tertiary-fixed": "#ffdbcf",
+                      "on-error-container": "#ffdad6",
+                      "on-primary": "#002388",
+                      "tertiary-fixed-dim": "#ffb59b",
+                      "on-tertiary-fixed": "#380d00",
+                      "on-primary-container": "#efefff",
+                      "surface-container-highest": "#353534"
+              },
+              "borderRadius": {
+                      "DEFAULT": "1rem",
+                      "lg": "2rem",
+                      "xl": "3rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "container-padding": "20px",
+                      "action-bar-height": "72px",
+                      "stack-gap": "12px",
+                      "bento-gap": "16px"
+              },
+              "fontFamily": {
+                      "label-md": [
+                              "DM Sans"
+                      ],
+                      "body-md": [
+                              "DM Sans"
+                      ],
+                      "headline-md": [
+                              "DM Sans"
+                      ],
+                      "headline-lg": [
+                              "DM Sans"
+                      ],
+                      "label-sm": [
+                              "DM Sans"
+                      ],
+                      "display": [
+                              "DM Sans"
+                      ],
+                      "body-lg": [
+                              "DM Sans"
+                      ]
+              },
+              "fontSize": {
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "letterSpacing": "0em",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.02em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "display": [
+                              "48px",
+                              {
+                                      "lineHeight": "52px",
+                                      "letterSpacing": "-0.04em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "letterSpacing": "0em",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              },
+              animation: {
+                'slide-up-fade': 'slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                'pulse-breathe': 'pulseBreathe 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+              },
+              keyframes: {
+                slideUpFade: {
+                  '0%': { opacity: '0', transform: 'translateY(20px)' },
+                  '100%': { opacity: '1', transform: 'translateY(0)' },
+                },
+                pulseBreathe: {
+                  '0%, 100%': { transform: 'scale(1)', boxShadow: '0 0 20px rgba(0, 255, 255, 0.3)' },
+                  '50%': { transform: 'scale(1.05)', boxShadow: '0 0 40px rgba(0, 255, 255, 0.6)' },
+                }
+              }
+      },
+          },
+        }
+      </script>
+<style>
+          body {
+              background-color: #000000; /* Pure OLED Black override */
+          }
+          .bento-card {
+              background-color: #0A0A0A;
+              border: 1px solid rgba(255, 255, 255, 0.06);
+          }
+          
+          /* Reduced Motion */
+          @media (prefers-reduced-motion: reduce) {
+            .motion-safe\:animate-slide-up-fade {
+              animation: none;
+              opacity: 1;
+              transform: none;
+            }
+            .motion-safe\:animate-pulse-breathe {
+              animation: none;
+            }
+            .transition-all, .transition-transform, .transition-colors, .transition-opacity {
+              transition: none !important;
+            }
+          }
+      </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="text-on-surface antialiased min-h-screen flex flex-col font-body-md overflow-x-hidden">
+<!-- Top App Bar -->
+<header class="flex items-center justify-between px-container-padding h-16 w-full bg-background dark:bg-surface-container-lowest border-b border-outline-variant/10 fixed top-0 z-50">
+<button class="text-primary dark:text-primary hover:opacity-80 active:scale-95 transition-all duration-300 ease-in-out">
+<span class="material-symbols-outlined" data-icon="language" style="font-variation-settings: 'FILL' 1;">language</span>
+</button>
+<h1 class="font-display text-headline-md tracking-tighter text-on-surface">GLOSS</h1>
+<div class="w-6 h-6"></div> <!-- Spacer -->
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 flex flex-col px-container-padding pt-24 pb-48 gap-bento-gap max-w-md mx-auto w-full">
+<!-- Top Bento Card: Original Concept -->
+<article class="bento-card rounded-[28px] p-6 flex flex-col gap-4 min-h-[200px] justify-between relative overflow-hidden group transition-all duration-300 ease-in-out active:scale-[0.98] opacity-0 motion-safe:animate-slide-up-fade" style="animation-delay: 100ms;">
+<div class="flex items-center justify-between z-10">
+<span class="font-label-md text-label-md text-outline tracking-wider uppercase">Original Concept</span>
+<span class="material-symbols-outlined text-outline-variant text-sm" data-icon="auto_awesome">auto_awesome</span>
+</div>
+<p class="font-headline-md text-headline-md text-on-surface z-10 leading-snug">
+                "Finding balance in the chaos."
+            </p>
+<!-- Ambient Glow -->
+<div class="absolute -top-24 -right-24 w-48 h-48 bg-primary/5 rounded-full blur-[50px] group-hover:bg-primary/10 transition-colors duration-500 ease-in-out"></div>
+</article>
+<!-- Bottom Bento Card: Synthesized Output -->
+<article class="bento-card rounded-[28px] p-6 flex flex-col gap-4 flex-1 min-h-[300px] justify-center relative overflow-hidden group border-primary/20 transition-all duration-300 ease-in-out active:scale-[0.98] opacity-0 motion-safe:animate-slide-up-fade" style="animation-delay: 250ms;">
+<div class="absolute top-6 left-6 z-10">
+<span class="font-label-md text-label-md text-primary tracking-wider uppercase">Synthesized Output</span>
+</div>
+<p class="font-display text-display text-on-surface z-10 mt-8">
+                Harmony <br/> <span class="text-primary">Within.</span>
+</p>
+<!-- Accent Elements -->
+<div class="absolute bottom-6 left-6 flex gap-2 z-10">
+<span class="px-3 py-1 rounded-full border border-outline-variant/30 font-label-sm text-label-sm text-on-surface-variant backdrop-blur-sm">Nuance: High</span>
+<span class="px-3 py-1 rounded-full border border-outline-variant/30 font-label-sm text-label-sm text-on-surface-variant backdrop-blur-sm">Tone: Zen</span>
+</div>
+<!-- Deep Ambient Glow -->
+<div class="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-primary/10 to-transparent blur-[30px] opacity-50"></div>
+</article>
+</main>
+<!-- Fixed Bottom Controls (Thumb Zone) -->
+<div class="fixed bottom-0 w-full z-40 max-w-md mx-auto left-0 right-0">
+<!-- Pill Selectors (Floating above Action Bar) -->
+<div class="flex justify-center gap-3 mb-6 px-container-padding">
+<button class="bg-[#121212] border border-outline-variant/20 rounded-full px-5 py-2 flex items-center gap-2 text-on-surface hover:bg-surface-container-high active:scale-95 transition-all duration-300 ease-in-out shadow-lg">
+<span class="material-symbols-outlined text-lg" data-icon="translate">translate</span>
+<span class="font-label-md text-label-md">EN to JP</span>
+</button>
+<button class="bg-[#121212] border border-outline-variant/20 rounded-full px-5 py-2 flex items-center gap-2 text-on-surface hover:bg-surface-container-high active:scale-95 transition-all duration-300 ease-in-out shadow-lg">
+<span class="material-symbols-outlined text-lg" data-icon="tune">tune</span>
+<span class="font-label-md text-label-md">Poetic</span>
+</button>
+</div>
+<!-- Action Bar Container -->
+<nav class="h-action-bar-height bg-background/80 dark:bg-background/80 backdrop-blur-[24px] border-t border-outline-variant/20 flex justify-between items-center px-8 pb-safe rounded-t-lg relative">
+<!-- Left Action -->
+<button class="text-outline hover:text-primary active:scale-95 transition-all duration-300 ease-in-out flex flex-col items-center justify-center p-3">
+<span class="material-symbols-outlined" data-icon="mic" style="font-variation-settings: 'wght' 300;">mic</span>
+</button>
+<!-- Center Synthesis Button (Glowing Bubble) -->
+<button class="relative -top-8 bg-primary-container text-on-primary-container rounded-full w-20 h-20 flex items-center justify-center shadow-[0_0_30px_rgba(0,255,255,0.2)] hover:scale-105 active:scale-95 transition-all duration-300 ease-in-out border-2 border-background motion-safe:animate-pulse-breathe bg-cyan-600">
+<span class="material-symbols-outlined text-3xl" data-icon="graphic_eq" style="font-variation-settings: 'FILL' 1;">graphic_eq</span>
+<!-- Ripple effect ring -->
+<div class="absolute inset-0 rounded-full border border-cyan-400/50 animate-ping opacity-20"></div>
+</button>
+<!-- Right Action -->
+<button class="text-outline hover:text-primary active:scale-95 transition-all duration-300 ease-in-out flex flex-col items-center justify-center p-3">
+<span class="material-symbols-outlined" data-icon="photo_camera" style="font-variation-settings: 'wght' 300;">photo_camera</span>
+</button>
+</nav>
+</div>
+</body></html>
