@@ -416,6 +416,7 @@
 
         .translate-controls--mobile {
             display: block;
+            bottom: calc(12px + env(safe-area-inset-bottom));
         }
 
         .translate-controls--mobile:not(.translate-controls--visible) {
@@ -461,6 +462,20 @@
 
         .mobile-nav-item.is-active .material-symbols-outlined {
             transform: scale(1.12);
+        }
+
+        :root {
+            --mobile-bottom-offset: 160px; /* JS yükleninceye kadar yedek değer */
+        }
+
+        @media (max-width: 767px) {
+            #main-canvas {
+                padding-bottom: 180px !important;
+            }
+            /* Sabit yükseklik zorlaması kaldırılıyor ki kartlar gereksiz boşluk bırakmasın */
+            #section-translate .md\:hidden.flex.flex-col.gap-bento-gap {
+                min-height: auto;
+            }
         }
     </style>
 </head>
@@ -521,7 +536,7 @@
     </header>
 
     <!-- ========== MAIN CANVAS ========== -->
-    <main class="flex-1 relative z-10 w-full max-w-8xl mx-auto px-container-padding pt-20 md:pt-8 pb-36 md:pb-36" id="main-canvas">
+    <main class="flex-1 relative z-10 w-full max-w-8xl mx-auto px-container-padding pt-20 md:pt-8 pb-24 md:pb-36" id="main-canvas">
 
         <!-- TRANSLATE SECTION -->
         <section class="app-section is-active" id="section-translate" aria-labelledby="section-translate-title">
@@ -567,6 +582,19 @@
 
             <!-- Mobile: stacked bento cards -->
             <div class="md:hidden flex flex-col gap-bento-gap max-w-md mx-auto w-full min-h-[520px]">
+                <div class="md:hidden w-full max-w-md mx-auto mt-6 translate-controls translate-controls--mobile translate-controls--visible" id="translate-controls-mobile">
+                    <div class="flex justify-center gap-3 mb-4 px-container-padding">
+                        <div class="autocomplete-wrapper">
+                            <input autocomplete="off" class="pill-input font-label-md text-label-md px-5 py-2 w-full min-w-[120px] ring-0 focus:ring-0" data-i18n-placeholder="placeholder.language" id="target-language-mobile" placeholder="Language..." type="text">
+                            <ul class="autocomplete-list hidden" id="language-suggestions-mobile" role="listbox"></ul>
+                        </div>
+                        <div class="autocomplete-wrapper">
+                            <input autocomplete="off" class="pill-input font-label-md text-label-md px-5 py-2 w-full min-w-[100px] ring-0 focus:ring-0" data-i18n-placeholder="placeholder.persona" id="persona-mobile" placeholder="Persona..." type="text">
+                            <ul class="autocomplete-list hidden" id="persona-suggestions-mobile" role="listbox"></ul>
+                        </div>
+                    </div>
+                </div>
+
                 <article class="bento-card rounded-[28px] p-6 flex flex-col gap-4 flex-1 min-h-[240px] relative overflow-hidden group motion-safe:animate-slide-up-fade" style="animation-delay: 100ms;">
                     <div class="flex items-center justify-between z-10">
                         <span class="font-label-md text-label-md text-outline tracking-wider uppercase" data-i18n="label.originalConcept">Original Concept</span>
@@ -592,6 +620,19 @@
                     </div>
                     <div class="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-primary/10 to-transparent blur-[30px] opacity-50 pointer-events-none"></div>
                 </article>
+                <div class="md:hidden w-full max-w-md mx-auto mt-6 translate-controls translate-controls--mobile translate-controls--visible" id="translate-controls-mobile-actionbar">
+                    <nav class="h-action-bar-height flex justify-center items-center px-8 relative bg-transparent">
+                        <div class="grid w-full max-w-md grid-cols-[1fr_auto_1fr] items-center px-2">
+                            <button class="relative z-10 justify-self-start text-outline hover:text-white/90 active:scale-95 transition-all duration-300 p-2 rounded-full" id="mic-btn-mobile" type="button" aria-label="Microphone">
+                                <span class="material-symbols-outlined">mic</span>
+                            </button>
+                            <button class="relative z-10 justify-self-center -top-6 bg-primary-container text-on-primary-container rounded-full w-20 h-20 flex items-center justify-center shadow-[0_0_30px_rgba(46,91,255,0.3)] hover:scale-105 active:scale-95 transition-all duration-300 border-2 border-background motion-safe:animate-pulse-breathe" id="synthesize-btn-mobile" type="button">
+                                <span class="material-symbols-outlined text-3xl text-white synth-btn-inner" style="font-variation-settings: 'FILL' 1;">graphic_eq</span>
+                            </button>
+                            <div aria-hidden="true" class="justify-self-end h-10 w-10"></div>
+                        </div>
+                    </nav>
+                </div>
             </div>
         </section>
 
@@ -685,6 +726,9 @@
                         </button>
                         <button class="ui-lang-option" data-lang="tr" type="button">
                             <span class="ui-lang-inner px-4 py-2 rounded-full text-sm border border-outline-variant/20 text-on-surface">Türkçe (beta)</span>
+                        </button>
+                        <button class="ui-lang-option" data-lang="fr" type="button">
+                            <span class="ui-lang-inner px-4 py-2 rounded-full text-sm border border-outline-variant/20 text-on-surface">Français</span>
                         </button>
                     </div>
                 </div>
@@ -802,7 +846,12 @@
                         </div>
                     </div>
                 </div>
-
+            
+                <!-- Apply Quick Translation (Aşama 1) -->
+                <button class="hidden w-full py-4 px-6 rounded-xl bg-primary-container text-white font-label-md text-label-md font-bold flex items-center justify-center gap-2 pulse-glow hover:bg-[#124af0] transition-colors disabled:opacity-60" id="apply-translation-btn" type="button" disabled>
+                    <span class="material-symbols-outlined text-[20px]">translate</span>
+                    <span>Apply Quick Translation</span>
+                </button>
                 <!-- Direct Translation -->
                 <div id="traveler-translation-card" class="hidden bento-card p-6 space-y-4">
                     <div class="flex items-start justify-between gap-4">
@@ -875,7 +924,7 @@
         <div class="autocomplete-wrapper w-44">
             <label class="sr-only" data-i18n="label.targetContext" for="target-language">Target Context</label>
             <input autocomplete="off" class="pill-input font-label-md text-label-md px-4 py-2 w-full ring-0 focus:ring-0" data-i18n-placeholder="placeholder.language" id="target-language" placeholder="Type a language..." type="text">
-            <ul class="autocomplete-list hidden" id="language-suggestions" role="listbox"></ul>
+            <ul class="autocomplete-list hidden"  id="language-suggestions" role="listbox"></ul>
         </div>
         <div class="w-px h-8 bg-outline-variant/20"></div>
         <div class="autocomplete-wrapper w-40">
@@ -890,37 +939,8 @@
         </button>
     </div>
 
-    <!-- ========== MOBILE BOTTOM CONTROLS (Translate only) ========== -->
-    <div class="md:hidden fixed bottom-0 w-full z-40 max-w-md mx-auto left-0 right-0 translate-controls translate-controls--mobile translate-controls--visible" id="translate-controls-mobile">
-        <!-- Pill selectors -->
-        <div class="flex justify-center gap-3 mb-4 px-container-padding">
-            <div class="autocomplete-wrapper">
-                <input autocomplete="off" class="pill-input font-label-md text-label-md px-5 py-2 w-full min-w-[120px] ring-0 focus:ring-0" data-i18n-placeholder="placeholder.language" id="target-language-mobile" placeholder="Language..." type="text">
-                <ul class="autocomplete-list hidden" id="language-suggestions-mobile" role="listbox"></ul>
-            </div>
-            <div class="autocomplete-wrapper">
-                <input autocomplete="off" class="pill-input font-label-md text-label-md px-5 py-2 w-full min-w-[100px] ring-0 focus:ring-0" data-i18n-placeholder="placeholder.persona" id="persona-mobile" placeholder="Persona..." type="text">
-                <ul class="autocomplete-list hidden" id="persona-suggestions-mobile" role="listbox"></ul>
-            </div>
-        </div>
-        <!-- Action bar -->
-        <nav class="h-action-bar-height action-bar flex justify-center items-center px-8 relative rounded-t-2xl">
-            <div class="grid w-full max-w-md grid-cols-[1fr_auto_1fr] items-center px-2">
-                <button class="relative z-10 justify-self-start text-outline hover:text-white/90 active:scale-95 transition-all duration-300 p-2 rounded-full" id="mic-btn-mobile" type="button" aria-label="Microphone">
-                    <span class="material-symbols-outlined">mic</span>
-                </button>
-
-                <button class="relative z-10 justify-self-center -top-6 bg-primary-container text-on-primary-container rounded-full w-20 h-20 flex items-center justify-center shadow-[0_0_30px_rgba(46,91,255,0.3)] hover:scale-105 active:scale-95 transition-all duration-300 border-2 border-background motion-safe:animate-pulse-breathe" id="synthesize-btn-mobile" type="button">
-                    <span class="material-symbols-outlined text-3xl text-white synth-btn-inner" style="font-variation-settings: 'FILL' 1;">graphic_eq</span>
-                </button>
-
-                <div aria-hidden="true" class="justify-self-end h-10 w-10"></div>
-            </div>
-        </nav>
-    </div>
-
     <!-- ========== MOBILE BOTTOM NAV ========== -->
-    <nav class="md:hidden fixed left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-sm z-30 flex justify-around items-center h-14 px-4 rounded-full border border-white/10 bg-surface-container/90 backdrop-blur-3xl bottom-4 transition-all duration-300 relative overflow-hidden" id="mobile-bottom-nav">
+    <nav class="md:hidden fixed left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-sm z-30 flex justify-around items-center h-14 px-4 rounded-full border border-white/10 bg-surface-container/55 backdrop-blur-2xl bottom-4 transition-all duration-300 relative overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.25)]" id="mobile-bottom-nav">
         <div aria-hidden="true" class="mobile-nav-indicator" id="mobile-nav-indicator"></div>
         <button class="mobile-nav-item relative z-10 flex flex-col items-center gap-0.5 text-primary p-2 transition-all" data-section="translate" type="button">
             <span class="material-symbols-outlined text-[22px]" style="font-variation-settings: 'FILL' 1;">translate</span>

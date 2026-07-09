@@ -3,10 +3,10 @@
  * FastAPI translate endpoint integration
  */
 
-const API_URL = 'https://late-fans-bow.loca.lt/translate';
-const TRAVELER_TRANSLATION_URL = 'https://late-fans-bow.loca.lt/traveler/translation';
-const TRAVELER_ANALYZE_URL = 'https://late-fans-bow.loca.lt/traveler/analyze';
-const TRAVELER_HISTORY_URL = 'https://late-fans-bow.loca.lt/traveler/history';
+const API_URL = 'https://solid-baths-trade.loca.lt/translate';
+const TRAVELER_TRANSLATION_URL = 'https://solid-baths-trade.loca.lt/traveler/translation';
+const TRAVELER_ANALYZE_URL = 'https://solid-baths-trade.loca.lt/traveler/analyze';
+const TRAVELER_HISTORY_URL = 'https://solid-baths-trade.loca.lt/traveler/history';
 
 const LANGUAGE_SUGGESTIONS = [
   'Japanese (Business)',
@@ -72,6 +72,7 @@ function clearTravelerPreviewUrl() {
 function resetTravelerFlow() {
   travelerCurrentTranslation = '';
 
+  const applyBtn = document.getElementById('apply-translation-btn');
   const translationCard = document.getElementById('traveler-translation-card');
   const translationText = document.getElementById('traveler-translation');
   const discoverBtn = document.getElementById('discover-context-btn');
@@ -79,6 +80,11 @@ function resetTravelerFlow() {
   const safetyBanner = document.getElementById('safety-flag-banner');
   const ttsControls = document.getElementById('tts-controls');
 
+  if (applyBtn) {
+    applyBtn.classList.add('hidden');
+    applyBtn.disabled = true;
+    setTravelerButtonLabel(applyBtn, 'Apply Quick Translation');
+  }
   if (translationCard) translationCard.classList.add('hidden');
   if (translationText) translationText.textContent = '';
   if (discoverBtn) {
@@ -99,6 +105,14 @@ function setTravelerButtonLabel(button, label) {
   } else {
     button.textContent = label;
   }
+}
+
+function getTravelerTranslationDisplayText() {
+  if (!travelerCurrentTranslation) return '';
+  if (travelerCurrentTranslation === 'NO_TEXT_FOUND') {
+    return 'No readable text found. Use Discover Context to identify the scene.';
+  }
+  return travelerCurrentTranslation;
 }
 
 function blobToDataUrl(blob) {
@@ -232,6 +246,68 @@ const UI_COPY = {
       noCore: 'No core meaning available for this run.',
       noSpeechAct: 'Unspecified speech act',
       noEntities: 'No salient named entities were highlighted for this utterance.',
+    },
+  },
+  fr: {
+    brand: { tagline: 'Synthèse Culturelle' },
+    nav: { translate: 'Traduire', history: 'Historique', settings: 'Paramètres', engine: 'Moteur' },
+    label: {
+      targetContext: 'Contexte Cible',
+      nuanceProfile: 'Profil de Nuance',
+      originalConcept: 'Concept Original',
+      synthesizedOutput: 'Sortie Synthétisée',
+      autoDetect: 'Détection Automatique',
+    },
+    placeholder: {
+      language: 'Entrez une langue...',
+      persona: 'Entrez un persona...',
+      source: 'Entrez du texte ou déposez un document ici pour commencer la synthèse culturelle...',
+    },
+    action: { synthesize: 'Synthétiser', loading: 'Chargement...', copy: 'Copier dans le presse-papiers' },
+    status: {
+      awaiting: 'En attente d\'entrée pour la synthèse...',
+      emptySource: 'Entrez le texte source pour commencer la synthèse.',
+      failed: 'La traduction a échoué. Vérifiez la console pour plus de détails.',
+    },
+    history: {
+      subtitle: 'Chronologie de session de vos synthèses récentes.',
+      clear: 'Effacer la Session',
+      empty: 'Aucun historique pour le moment. Exécutez une synthèse pour commencer à construire la chronologie de cette session.',
+      output: 'Sortie',
+    },
+    settings: {
+      subtitle: 'Ajustez l\'humeur, le mouvement et la langue de l\'interface de Lyra.',
+      themeTitle: 'Thème',
+      themeDesc: 'Choisissez l\'univers de couleurs pour les dégradés et les accents.',
+      effectsTitle: 'Effets',
+      effectsDesc: 'Contrôlez le mouvement et la lueur pour des sessions favorables à la concentration.',
+      dynamicLights: 'Lumières Dynamiques',
+      dynamicLightsDesc: 'Activez/désactivez les anneaux d\'aurore rotatifs.',
+      dynamicBackground: 'Arrière-plan Dynamique',
+      dynamicBackgroundDesc: 'Lorsqu\'il est désactivé, fige l\'image vidéo actuelle.',
+      languageTitle: 'Langue de l\'Interface',
+      languageDesc: 'Affecte les étiquettes de l\'interface, pas le texte synthétisé.',
+      on: 'ACTIVÉ',
+      off: 'DÉSACTIVÉ',
+    },
+    theme: {
+      cosmic: 'Cosmique',
+      cosmicDesc: 'Palette par défaut de Lyra',
+      aurora: 'Aurore',
+      auroraDesc: 'Vert et cyan froids',
+      rose: 'Nébuleuse Rose',
+      roseDesc: 'Chaud, narratif',
+    },
+    engine: {
+      subtitle: 'Jetez un œil au cerveau de Lyra de l\'étape 1 pour votre dernière synthèse.',
+      empty: 'Aucune donnée moteur pour le moment. Exécutez une synthèse pour inspecter son anatomie sémantique.',
+      coreMeaning: 'Signification Centrale',
+      coreMeaningDesc: 'Colonne vertébrale sémantique neutre',
+      valence: 'Valence',
+      speechAct: 'Acte de Parole',
+      noCore: 'Aucune signification centrale disponible pour cette exécution.',
+      noSpeechAct: 'Acte de parole non spécifié',
+      noEntities: 'Aucune entité nommée saillante n\'a été mise en évidence pour cette expression.',
     },
   },
   tr: {
@@ -795,14 +871,10 @@ function setActiveSection(section) {
   const mainCanvas = document.getElementById('main-canvas');
   if (mobileNav) {
     // Keep the mobile bottom nav near the bottom; translate controls will float above it.
-    mobileNav.style.bottom = '12px';
+    mobileNav.style.bottom = 'calc(12px + env(safe-area-inset-bottom))';
   }
   // Move mobile translate controls above the bottom nav when Translate is active
   const translateControlsMobile = document.getElementById('translate-controls-mobile');
-  if (translateControlsMobile) {
-    // Position the mobile translate controls above the bottom nav when Translate is active
-    translateControlsMobile.style.bottom = isTranslate ? '88px' : '0px';
-  }
   if (mainCanvas) {
     mainCanvas.classList.toggle('pb-36', !isTranslate);
     mainCanvas.classList.toggle('pb-52', isTranslate);
@@ -1051,7 +1123,12 @@ async function handleImageSelect(file) {
       container.classList.remove('hidden');
     }
 
-    await translateTravelerImage();
+    const applyBtn = document.getElementById('apply-translation-btn');
+    if (applyBtn) {
+      applyBtn.classList.remove('hidden');
+      applyBtn.disabled = false;
+      setTravelerButtonLabel(applyBtn, 'Apply Quick Translation');
+    }
   } catch (error) {
     console.error('[Lyra Traveler] Image compression failed:', error);
 
@@ -1068,7 +1145,12 @@ async function handleImageSelect(file) {
         container.classList.remove('hidden');
       }
 
-      translateTravelerImage();
+      const applyBtn = document.getElementById('apply-translation-btn');
+      if (applyBtn) {
+        applyBtn.classList.remove('hidden');
+        applyBtn.disabled = false;
+        setTravelerButtonLabel(applyBtn, 'Apply Quick Translation');
+      }
     };
     reader.readAsDataURL(file);
   }
@@ -1098,13 +1180,18 @@ async function getTravelerUploadBlob() {
 }
 
 function setTravelerTranslationLoading(isLoading) {
+  const applyBtn = document.getElementById('apply-translation-btn');
   const translationCard = document.getElementById('traveler-translation-card');
   const translationText = document.getElementById('traveler-translation');
   const discoverBtn = document.getElementById('discover-context-btn');
 
   if (translationCard) translationCard.classList.remove('hidden');
   if (translationText) {
-    translationText.textContent = isLoading ? 'Translating...' : travelerCurrentTranslation;
+    translationText.textContent = isLoading ? 'Translating...' : getTravelerTranslationDisplayText();
+  }
+  if (applyBtn) {
+    applyBtn.disabled = isLoading;
+    setTravelerButtonLabel(applyBtn, isLoading ? 'Translating...' : 'Apply Quick Translation');
   }
   if (discoverBtn) {
     discoverBtn.classList.toggle('hidden', isLoading || !travelerCurrentTranslation);
@@ -1154,7 +1241,7 @@ async function translateTravelerImage() {
     travelerCurrentTranslation = data.translation || 'NO_TEXT_FOUND';
     const translationText = document.getElementById('traveler-translation');
     if (translationText) {
-      translationText.textContent = travelerCurrentTranslation;
+      translationText.textContent = getTravelerTranslationDisplayText();
     }
 
     const discoverBtn = document.getElementById('discover-context-btn');
@@ -1260,7 +1347,10 @@ function displayTravelerTranslation(data) {
   const discoverBtn = document.getElementById('discover-context-btn');
 
   if (translationCard) translationCard.classList.remove('hidden');
-  if (translationText) translationText.textContent = data.translation || 'NO_TEXT_FOUND';
+  if (translationText) {
+    travelerCurrentTranslation = data.translation || 'NO_TEXT_FOUND';
+    translationText.textContent = getTravelerTranslationDisplayText();
+  }
   if (discoverBtn) {
     discoverBtn.classList.remove('hidden');
     discoverBtn.disabled = false;
@@ -1431,6 +1521,7 @@ document.addEventListener('DOMContentLoaded', () => {
     resetTravelerFlow();
   });
 
+  document.getElementById('apply-translation-btn')?.addEventListener('click', translateTravelerImage);
   document.getElementById('discover-context-btn')?.addEventListener('click', analyzeTravelerImage);
 
   // Mobile mic button placeholder
