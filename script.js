@@ -1303,7 +1303,7 @@ async function analyzeTravelerImage() {
     formData.append('target_language', language);
     formData.append('mode', mode);
 
-    console.log('[Lyra Traveler] Sending request to:', TRAVELER_ANALYZE_URL);
+    console.log('[Lyra Traveler] Sending request to:', getTravelerAnalyzeUrl());
     console.log('[Lyra Traveler] FormData:', { language, mode, imageSize: blob?.size });
 
     const response = await fetch(getTravelerAnalyzeUrl(), {
