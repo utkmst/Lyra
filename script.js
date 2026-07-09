@@ -3,10 +3,23 @@
  * FastAPI translate endpoint integration
  */
 
-const API_URL = 'https://solid-baths-trade.loca.lt/translate';
-const TRAVELER_TRANSLATION_URL = 'https://solid-baths-trade.loca.lt/traveler/translation';
-const TRAVELER_ANALYZE_URL = 'https://solid-baths-trade.loca.lt/traveler/analyze';
-const TRAVELER_HISTORY_URL = 'https://solid-baths-trade.loca.lt/traveler/history';
+const DEFAULT_API_BASE = 'https://solid-baths-trade.loca.lt'; // Kaggle ilk açıldığında görünen adres, yedek olarak kalsın
+
+function getApiBase() {
+  const saved = localStorage.getItem('lyra_api_base');
+  return (saved && saved.trim()) ? saved.trim().replace(/\/$/, '') : DEFAULT_API_BASE;
+}
+
+function setApiBase(url) {
+  const cleaned = url.trim().replace(/\/$/, '');
+  localStorage.setItem('lyra_api_base', cleaned);
+}
+
+// Bu 4 sabiti artık fonksiyon çağrısına çeviriyoruz, her istekte güncel URL okunacak
+function getApiUrl() { return `${getApiBase()}/translate`; }
+function getTravelerTranslationUrl() { return `${getApiBase()}/traveler/translation`; }
+function getTravelerAnalyzeUrl() { return `${getApiBase()}/traveler/analyze`; }
+function getTravelerHistoryUrl() { return `${getApiBase()}/traveler/history`; }
 
 const LANGUAGE_SUGGESTIONS = [
   'Japanese (Business)',
@@ -583,7 +596,7 @@ async function synthesize() {
   setLoading(true);
 
   try {
-    const response = await fetch(API_URL, {
+    const response = await fetch(getApiUrl(), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -1215,10 +1228,10 @@ async function translateTravelerImage() {
     formData.append('target_language', language);
     formData.append('mode', mode);
 
-    console.log('[Lyra Traveler] Sending translation request to:', TRAVELER_TRANSLATION_URL);
+    console.log('[Lyra Traveler] Sending translation request to:', getTravelerTranslationUrl())
     console.log('[Lyra Traveler] Translation request:', { language, mode, imageSize: blob?.size });
 
-    const response = await fetch(TRAVELER_TRANSLATION_URL, {
+    const response = await fetch(getTravelerTranslationUrl(), {
       method: 'POST',
       headers: {
         'Bypass-Tunnel-Reminder': 'true'
@@ -1293,7 +1306,7 @@ async function analyzeTravelerImage() {
     console.log('[Lyra Traveler] Sending request to:', TRAVELER_ANALYZE_URL);
     console.log('[Lyra Traveler] FormData:', { language, mode, imageSize: blob?.size });
 
-    const response = await fetch(TRAVELER_ANALYZE_URL, {
+    const response = await fetch(getTravelerAnalyzeUrl(), {
       method: 'POST',
       // localtunnel sometimes shows a landing page; send this header to bypass the reminder
       headers: {
@@ -1414,7 +1427,7 @@ function displayTravelerResults(data) {
 
 async function loadTravelerHistory() {
   try {
-    const response = await fetch(TRAVELER_HISTORY_URL, {
+    const response = await fetch(getTravelerHistoryUrl(), {
       headers: {
         'Bypass-Tunnel-Reminder': 'true'
       }
@@ -1613,4 +1626,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Load traveler history on startup
   loadTravelerHistory();
+  // API URL ayar ekranı
+  const apiUrlInput = document.getElementById('api-base-url-input');
+  const apiUrlSaveBtn = document.getElementById('api-base-url-save-btn');
+  const apiUrlStatus = document.getElementById('api-base-url-status');
+
+  if (apiUrlInput) {
+    apiUrlInput.value = getApiBase();
+  }
+
+  if (apiUrlSaveBtn) {
+    apiUrlSaveBtn.addEventListener('click', () => {
+      const value = apiUrlInput.value.trim();
+      if (!value) return;
+      setApiBase(value);
+      if (apiUrlStatus) {
+        apiUrlStatus.textContent = 'Kaydedildi ✓';
+        apiUrlStatus.classList.remove('hidden');
+        setTimeout(() => apiUrlStatus.classList.add('hidden'), 2000);
+      }
+    });
+  }
 });

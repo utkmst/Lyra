@@ -657,7 +657,17 @@
                     <h2 class="font-headline-lg text-headline-lg text-on-surface" data-i18n="nav.settings" id="section-settings-title">Settings</h2>
                     <p class="font-body-md text-outline mt-1" data-i18n="settings.subtitle">Tune Lyra's mood, motion, and interface language.</p>
                 </div>
-
+            <div class="bento-card p-6 space-y-4">
+                <h3 class="font-headline-md text-headline-md text-on-surface">API Bağlantısı</h3>
+                <p class="font-body-md text-outline text-sm">Kaggle notebook her yeniden başladığında localtunnel adresi değişir — buraya yeni adresi yapıştır.</p>
+                <div class="flex gap-3 mt-2">
+                    <input type="text" id="api-base-url-input" placeholder="https://xxxx-xxxx.loca.lt" class="pill-input flex-1 py-2 px-4 font-body-md" autocomplete="off">
+                    <button id="api-base-url-save-btn" type="button" class="px-5 py-2 rounded-full bg-primary-container text-white font-label-md text-label-md font-bold hover:bg-[#124af0] transition-colors">
+                        Kaydet
+                    </button>
+                </div>
+                <p id="api-base-url-status" class="hidden text-sm text-primary">Kaydedildi ✓</p>
+            </div>
                 <div class="bento-card p-6 space-y-4">
                     <h3 class="font-headline-md text-headline-md text-on-surface" data-i18n="settings.themeTitle">Theme</h3>
                     <p class="font-body-md text-outline text-sm" data-i18n="settings.themeDesc">Choose the color universe for gradients and accents.</p>
