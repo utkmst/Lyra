@@ -71,7 +71,49 @@ let travelerCurrentImage = null;  // Compressed Blob or fallback data URL
 let travelerCurrentImagePreviewUrl = '';
 let travelerCurrentTranslation = '';
 let travelerHistory = [];  // Cache from /traveler/history
+let mainSelectedDocument = null;
 
+function handleMainDocumentSelect(file) {
+  if (!file || file.type !== 'application/pdf') {
+    alert('Please select a valid PDF file.');
+    return;
+  }
+  mainSelectedDocument = file;
+  
+  ['source-text', 'source-text-mobile'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.value = `[📄 PDF Document Attached: ${file.name}]\n\nClick 'Synthesize' to extract and translate this document.`;
+      el.readOnly = true;
+      el.classList.add('text-primary', 'opacity-80');
+    }
+  });
+
+  document.getElementById('main-attach-btn')?.classList.add('hidden');
+  document.getElementById('main-attach-btn-mobile')?.classList.add('hidden');
+  document.getElementById('main-clear-doc-btn')?.classList.remove('hidden');
+  document.getElementById('main-clear-doc-btn-mobile')?.classList.remove('hidden');
+}
+
+function clearMainDocument() {
+  mainSelectedDocument = null;
+  ['source-text', 'source-text-mobile'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.value = '';
+      el.readOnly = false;
+      el.classList.remove('text-primary', 'opacity-80');
+    }
+  });
+  
+  const fileInput = document.getElementById('main-doc-upload');
+  if (fileInput) fileInput.value = '';
+
+  document.getElementById('main-attach-btn')?.classList.remove('hidden');
+  document.getElementById('main-attach-btn-mobile')?.classList.remove('hidden');
+  document.getElementById('main-clear-doc-btn')?.classList.add('hidden');
+  document.getElementById('main-clear-doc-btn-mobile')?.classList.add('hidden');
+}
 const TRAVELER_IMAGE_MAX_DIMENSION = 1024;
 const TRAVELER_IMAGE_QUALITY = 0.7;
 
@@ -588,7 +630,7 @@ async function synthesize() {
   const language = getFieldValue('target-language', 'target-language-mobile') || DEFAULT_LANGUAGE;
   const style = getFieldValue('persona', 'persona-mobile') || DEFAULT_PERSONA;
 
-  if (!text) {
+  if (!text && !mainSelectedDocument) {
     renderOutput(t('status.emptySource'), { isPlaceholder: true });
     return;
   }
@@ -596,18 +638,35 @@ async function synthesize() {
   setLoading(true);
 
   try {
-    const response = await fetch(getApiUrl(), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Bypass-Tunnel-Reminder': 'true',
-      },
-      body: JSON.stringify({
-        text,
-        target_language: language,
-        persona: style,
-      }),
-    });
+    let response;
+
+    if (mainSelectedDocument) {
+      const formData = new FormData();
+      formData.append('file', mainSelectedDocument);
+      formData.append('target_language', language);
+      formData.append('persona', style);
+
+      response = await fetch(`${getApiBase()}/translate/document`, {
+        method: 'POST',
+        headers: { 'Bypass-Tunnel-Reminder': 'true' },
+        body: formData
+      });
+    }
+
+    else {
+      response = await fetch(getApiUrl(), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Bypass-Tunnel-Reminder': 'true',
+        },
+        body: JSON.stringify({
+          text,
+          target_language: language,
+          persona: style,
+        }),
+      });
+    }
 
     const rawBody = await response.text();
 
@@ -633,7 +692,7 @@ async function synthesize() {
     try {
       const item = {
         id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
-        source: text,
+        source: mainSelectedDocument ? `[PDF Document: ${mainSelectedDocument.name}]` : text,
         targetLanguage: language,
         persona: style,
         output: data.final_translation,
@@ -1503,6 +1562,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('synthesize-btn')?.addEventListener('click', synthesize);
   document.getElementById('synthesize-btn-mobile')?.addEventListener('click', synthesize);
+  document.getElementById('main-attach-btn')?.addEventListener('click', () => document.getElementById('main-doc-upload')?.click());
+  document.getElementById('main-attach-btn-mobile')?.addEventListener('click', () => document.getElementById('main-doc-upload')?.click());
+  document.getElementById('main-clear-doc-btn')?.addEventListener('click', clearMainDocument);
+  document.getElementById('main-clear-doc-btn-mobile')?.addEventListener('click', clearMainDocument);
+
+  document.getElementById('main-doc-upload')?.addEventListener('change', (e) => {
+    const file = e.target.files?.[0];
+    if (file) handleMainDocumentSelect(file);
+  });
 
   // ===== TRAVELER MODE HANDLERS =====
   document.getElementById('upload-image-btn')?.addEventListener('click', () => {
