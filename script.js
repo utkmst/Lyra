@@ -1654,4 +1654,188 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
   }
+  let activeStream = null;
+
+// --- 1. LIVE CAMERA LOGIC ---
+
+async function startLiveCamera() {
+  const video = document.getElementById('camera-feed');
+  const img = document.getElementById('image-preview');
+  const container = document.getElementById('image-preview-container');
+  const overlay = document.getElementById('result-overlay');
+  
+  try {
+    activeStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment' }
+    });
+    
+    video.srcObject = activeStream;
+    video.classList.remove('hidden');
+    img.classList.add('hidden');
+    container.classList.remove('hidden');
+    
+    // Reset states
+    overlay?.classList.add('hidden');
+    container.classList.remove('is-scanning');
+  } catch (err) {
+    console.warn('[Lyra Traveler] Camera access denied or unavailable:', err);
+  }
+}
+
+function stopLiveCamera() {
+  if (activeStream) {
+    activeStream.getTracks().forEach(track => track.stop());
+    activeStream = null;
+  }
+}
+
+// Programmatic Capture (Freeze Frame)
+function captureCameraFrame() {
+  const video = document.getElementById('camera-feed');
+  const img = document.getElementById('image-preview');
+  
+  if (!video.videoWidth) return; 
+
+  const canvas = document.createElement('canvas');
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  const ctx = canvas.getContext('2d');
+  
+  // Draw current video frame to canvas
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  
+  canvas.toBlob(blob => {
+    stopLiveCamera();
+    
+    // Switch to static image preview
+    video.classList.add('hidden');
+    img.classList.remove('hidden');
+    
+    // Pass into your existing Traveler state variables
+    travelerCurrentImage = blob;
+    clearTravelerPreviewUrl();
+    travelerCurrentImagePreviewUrl = URL.createObjectURL(blob);
+    img.src = travelerCurrentImagePreviewUrl;
+
+    const applyBtn = document.getElementById('apply-translation-btn');
+    if (applyBtn) {
+      applyBtn.classList.remove('hidden');
+      applyBtn.disabled = false;
+      setTravelerButtonLabel(applyBtn, 'Apply Quick Translation');
+    }
+  }, 'image/jpeg', 0.9);
+}
+
+// --- 2. INTERCEPTING EXISTING FLOWS ---
+
+// Start camera automatically when entering Traveler Mode
+const _originalSetActiveSection = setActiveSection;
+setActiveSection = function(section) {
+  _originalSetActiveSection(section);
+  if (section === 'traveler') {
+    startLiveCamera();
+  } else {
+    stopLiveCamera();
+  }
+};
+
+// Force video off if the user decides to manually upload a file (Action A)
+const _originalHandleImageSelect = handleImageSelect;
+handleImageSelect = async function(file) {
+  stopLiveCamera();
+  document.getElementById('camera-feed')?.classList.add('hidden');
+  document.getElementById('image-preview')?.classList.remove('hidden');
+  document.getElementById('result-overlay')?.classList.add('hidden');
+  await _originalHandleImageSelect(file);
+};
+
+// Trigger Scanner Animation & Overlay Reveal automatically
+const _originalSetTravelerTranslationLoading = setTravelerTranslationLoading;
+setTravelerTranslationLoading = function(isLoading) {
+  _originalSetTravelerTranslationLoading(isLoading);
+  
+  const container = document.getElementById('image-preview-container');
+  const overlay = document.getElementById('result-overlay');
+  const overlayText = document.getElementById('overlay-translation-text');
+  
+  if (isLoading) {
+    container?.classList.add('is-scanning');
+    overlay?.classList.add('hidden');
+  } else {
+    container?.classList.remove('is-scanning');
+    
+    // Show glassmorphism result directly over the image
+    if (travelerCurrentTranslation && travelerCurrentTranslation !== 'NO_TEXT_FOUND') {
+      overlay?.classList.remove('hidden');
+      if (overlayText) overlayText.textContent = travelerCurrentTranslation;
+    }
+  }
+};
+
+// --- 3. WIRING UP BUTTONS ---
+
+document.addEventListener('DOMContentLoaded', () => {
+  
+  // Restart the camera feed if they hit "Clear"
+  document.getElementById('clear-image-btn')?.addEventListener('click', () => {
+    document.getElementById('result-overlay')?.classList.add('hidden');
+    startLiveCamera();
+  });
+  document.getElementById('save-to-history-btn')?.addEventListener('click', async () => {
+    const btn = document.getElementById('save-to-history-btn');
+    const originalContent = btn.innerHTML;
+    
+    // UI Feedback: Show saving state
+    btn.innerHTML = '<span class="material-symbols-outlined animate-spin">sync</span><span>Saving...</span>';
+    btn.disabled = true;
+
+    try {
+      const response = await fetch(getTravelerHistoryUrl(), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Bypass-Tunnel-Reminder': 'true'
+        },
+        body: JSON.stringify({
+          language: document.getElementById('traveler-language').value || 'English',
+          mode: document.getElementById('traveler-mode').value || 'object',
+          translation: travelerCurrentTranslation,
+          explanation: document.getElementById('traveler-explanation')?.textContent || '',
+          timestamp: Date.now()
+        })
+      });
+
+      if (!response.ok) throw new Error('Backend returned ' + response.status);
+
+      // UI Feedback: Success
+      btn.innerHTML = '<span class="material-symbols-outlined text-green-400">check</span><span>Saved!</span>';
+      
+      // Refresh the history list on the UI to show the new item
+      await loadTravelerHistory();
+
+    } catch (error) {
+      console.error('[Lyra Traveler] Save failed:', error);
+      btn.innerHTML = '<span class="material-symbols-outlined text-error">error</span><span>Failed</span>';
+    } finally {
+      // Revert button back to normal after 2 seconds
+      setTimeout(() => {
+        btn.innerHTML = originalContent;
+        btn.disabled = false;
+      }, 2000);
+    }
+  });
+  // Hijack the existing 'Take Photo' buttons: 
+  // If the stream is active, capture the frame instead of opening the file picker.
+  const handleCaptureBtnClick = (e) => {
+    if (activeStream) {
+      e.preventDefault(); 
+      e.stopPropagation(); // Stops the file input click from firing
+      captureCameraFrame();
+    }
+  };
+
+  // Attach in the capture phase (true) so it intercepts before your existing logic runs
+  document.getElementById('camera-capture-btn')?.addEventListener('click', handleCaptureBtnClick, true);
+  document.getElementById('camera-capture-btn-mobile')?.addEventListener('click', handleCaptureBtnClick, true);
+});
 });
