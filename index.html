@@ -546,6 +546,7 @@
                 </button>
             </div>
         </div>
+        <input type="file" id="main-doc-upload" accept="application/pdf" class="hidden">
         <p class="font-label-sm text-label-sm text-outline uppercase tracking-widest" data-i18n="brand.tagline">Cultural Synthesis</p>
     </nav>
 
@@ -572,6 +573,12 @@
                 <div class="bento-card flex flex-col p-10 relative overflow-hidden group h-full min-h-0">
                     <div class="flex items-center justify-between mb-6">
                         <span class="font-label-sm text-label-sm text-outline uppercase tracking-widest" data-i18n="label.originalConcept">Original Concept</span>
+                        <button id="main-attach-btn" class="p-1 rounded-full text-outline hover:text-white transition-colors flex items-center" title="Attach PDF" type="button">
+                            <span class="material-symbols-outlined text-[20px]">attach_file</span>
+                        </button>
+                        <button id="main-clear-doc-btn" class="hidden p-1 rounded-full text-error hover:text-red-400 transition-colors flex items-center" title="Remove PDF" type="button">
+                            <span class="material-symbols-outlined text-[20px]">close</span>
+                        </button>
                         <span class="px-3 py-1 rounded-full border border-outline-variant/30 font-label-sm text-label-sm text-outline flex items-center gap-1">
                             <span class="w-1.5 h-1.5 rounded-full bg-outline"></span>
                             <span data-i18n="label.autoDetect">Auto-Detect</span>
@@ -623,8 +630,15 @@
                 <article class="bento-card rounded-[28px] p-6 flex flex-col gap-4 flex-1 min-h-[240px] relative overflow-hidden group motion-safe:animate-slide-up-fade" style="animation-delay: 100ms;">
                     <div class="flex items-center justify-between z-10">
                         <span class="font-label-md text-label-md text-outline tracking-wider uppercase" data-i18n="label.originalConcept">Original Concept</span>
-                        <span class="material-symbols-outlined text-outline-variant text-sm">auto_awesome</span>
-                    </div>
+                        <div class="flex items-center gap-2">
+                            <button id="main-attach-btn-mobile" class="p-1 rounded-full text-outline hover:text-white transition-colors" type="button">
+                                <span class="material-symbols-outlined text-[20px]">attach_file</span>
+                            </button>
+                            <button id="main-clear-doc-btn-mobile" class="hidden p-1 rounded-full text-error hover:text-red-400 transition-colors" type="button">
+                                <span class="material-symbols-outlined text-[20px]">close</span>
+                            </button>
+                            <span class="material-symbols-outlined text-outline-variant text-sm">auto_awesome</span>
+                        </div>
                     <textarea class="ghost-input w-full font-headline-md text-headline-md z-10 leading-snug min-h-[100px] flex-1" data-i18n-placeholder="placeholder.source" id="source-text-mobile" placeholder="Enter text or drop a document here to begin cultural synthesis..." spellcheck="false"></textarea>
                     <div class="absolute -top-24 -right-24 w-48 h-48 bg-primary/5 rounded-full blur-[50px] pointer-events-none"></div>
                 </article>
