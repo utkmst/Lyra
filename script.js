@@ -270,6 +270,9 @@ const UI_COPY = {
     },
     settings: {
       subtitle: 'Tune Lyra\'s mood, motion, and interface language.',
+      APItitle: 'API Base URL',
+      APIdesc: 'The localtunnel address changes every time your Kaggle notebook restarts — paste the new address here.',
+      APISave: 'Save',
       themeTitle: 'Theme',
       themeDesc: 'Choose the color universe for gradients and accents.',
       effectsTitle: 'Effects',
@@ -332,6 +335,9 @@ const UI_COPY = {
     },
     settings: {
       subtitle: 'Ajustez l\'humeur, le mouvement et la langue de l\'interface de Lyra.',
+      APItitle: 'URL de Base de l\'API',
+      APIdesc: 'L\'adresse de localtunnel change à chaque redémarrage de votre notebook Kaggle — collez la nouvelle adresse ici.',
+      APISave: 'Enregistrer',
       themeTitle: 'Thème',
       themeDesc: 'Choisissez l\'univers de couleurs pour les dégradés et les accents.',
       effectsTitle: 'Effets',
@@ -394,6 +400,9 @@ const UI_COPY = {
     },
     settings: {
       subtitle: 'Lyra\'nın ruh halini, hareketini ve arayüz dilini ayarlayın.',
+      APItitle: 'API Bağlantısı',
+      APIdesc: 'Localtunnel adresi, Kaggle notebook her yeniden başlatıldığında değişir — yeni adresi buraya yapıştırın.',
+      APISave: 'Kaydet',
       themeTitle: 'Tema',
       themeDesc: 'Gradyanlar ve vurgular için renk evrenini seçin.',
       effectsTitle: 'Efektler',
