@@ -1,4 +1,4 @@
-const CACHE_NAME = 'lyra-cache-v1';
+const CACHE_NAME = 'lyra-cache-v3';
 const PRECACHE_URLS = [
   './',
   './index.html',
